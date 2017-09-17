@@ -1,0 +1,72 @@
+---
+- name: create config directory
+  file:
+    path: "{{conf_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: conf_folder != ''
+
+- name: create rules directory
+  file:
+    path: "{{rules_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: rules_folder != ''
+
+- name: create certs directory
+  file:
+    path: "{{certs_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: certs_folder != ''
+
+- name: create certs directory
+  file:
+    path: "{{ssl_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: ssl_folder != ''
+
+- name: create www directory
+  file:
+    path: "{{www_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: www_folder != ''
+
+- name: create letsencrypt well-known directory
+  file:
+    path: "{{letsencrypt_well_known_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: www_folder != ''
+
+- name: create log directory
+  file:
+    path: "{{log_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: log_folder != ''
+
+- name: create script directory
+  file:
+    path: "{{script_folder}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+  when: script_folder != ''

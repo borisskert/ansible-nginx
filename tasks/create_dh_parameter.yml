@@ -1,0 +1,15 @@
+---
+- name: clear Diffie-Hellman parameter
+  file:
+    path: "{{dh_parameter_path}}"
+    state: absent
+  when: clear_dh_parameter
+
+- name: check Diffie-Hellman parameter existence
+  stat:
+    path: "{{dh_parameter_path}}"
+  register: dh_parameter
+
+- name: build Diffie-Hellman parameter (may take a long time)
+  command: "openssl dhparam -outform PEM -out {{dh_parameter_path}} {{dh_parameter_bits}}"
+  when: dh_parameter.stat is defined and not dh_parameter.stat.exists

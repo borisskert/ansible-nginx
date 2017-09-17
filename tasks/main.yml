@@ -1,0 +1,63 @@
+---
+- name: pull image
+  docker_image:
+    name: "{{image_name}}:{{image_version}}"
+  register: docker_image
+
+- name: Create systemd unit file
+  template:
+    src: nginx.systemd.j2
+    dest: /etc/systemd/system/nginx.service
+    owner: root
+    group: root
+    mode: 0550
+  register: nginx_service
+
+- include: create_volumes.yml
+
+- name: template ssl rules
+  template:
+    src: rules/ssl_parameters.conf.j2
+    dest: "{{rules_folder}}/{{ssl_parameters_file}}"
+
+- name: template reverse proxy rules
+  template:
+    src: rules/proxy_parameters.conf.j2
+    dest: "{{rules_folder}}/{{proxy_parameters_file}}"
+
+- include: create_http_config.yml site_name={{ item.key }} site_server_name={{ item.value.server_name }} upstream_port={{ item.value.port }}
+  with_dict: "{{ http_upstreams }}"
+
+- include: create_https_config.yml site_name={{ item.key }} site_server_name={{ item.value.server_name }} upstream_port={{ item.value.port }}
+  with_dict: "{{ https_upstreams }}"
+
+- include: create_dh_parameter.yml
+
+- include: create_ticketkey.yml
+
+- name: Setup logrotate config
+  template:
+    src: logrotate.j2
+    dest: "{{logrotate_config}}"
+
+- name: Install reload script
+  template:
+    src: reload.bash.j2
+    dest: "{{reload_script_path}}"
+    mode: 755
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+  when: nginx_service.changed
+
+- name: Restart service
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  when: docker_image.changed or nginx_service.changed
+  register: nginx_restart
+
+- name: Reload service
+  command: docker exec {{container_name}} nginx -s reload
+  when: not(nginx_restart.changed)

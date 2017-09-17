@@ -1,0 +1,5 @@
+---
+- name: template https site config
+  template:
+    src: conf.d/https.conf.j2
+    dest: "{{conf_folder}}/{{site_name}}.conf"

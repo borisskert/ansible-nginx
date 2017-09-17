@@ -1,0 +1,23 @@
+ssl_protocols TLSv1.2 TLSv1.1;
+
+ssl_ciphers EECDH+AESGCM:EDH+AESGCM:EECDH:EDH:!MD5:!RC4:!LOW:!MEDIUM:!CAMELLIA:!ECDSA:!DES:!DSS:!3DES:!NULL;
+ssl_prefer_server_ciphers on;
+
+ssl_dhparam /etc/nginx/ssl/{{dh_parameter_filename}};
+ssl_ecdh_curve secp384r1;
+
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+
+ssl_stapling on;
+ssl_stapling_verify on;
+
+ssl_session_cache shared:SSL:10m;
+
+ssl_session_timeout 10m;
+ssl_session_cache off;
+ssl_session_tickets on;
+ssl_session_ticket_key /etc/nginx/ssl/{{ticketkey_filename}};
+
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Xss-Protection "1";
