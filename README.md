@@ -41,8 +41,29 @@ Usage (with parameters):
     - hosts: servers
       roles:
       - role: install-docker-nginx
-        http_upstreams:
-          gitlab:
-            port: 10080
-            name: gitlab
-            server_name: git.flandigt.de
+    configs:
+      gitlab:
+        https: false
+        upstreams:
+          gitlab: "172.17.0.1:10080"
+        server_name: git.flandigt.de
+        locations:
+        - location: /
+          proxy_to: http://gitlab/
+      harbor_ui:
+        https: false
+        upstreams:
+          harbor_ui: "172.17.0.1:50080"
+          harbor_registry: "172.17.0.1:55000"
+        server_name: harbor.flandigt.de
+        locations:
+        - location: /
+          proxy_to: http://harbor_ui/
+        - location: /v1/
+          returns: 404
+        - location: /v2/
+          proxy_to: http://harbor_registry/v2/
+        - location: /service/
+          proxy_to: http://harbor_ui/service/
+        - location: /service/notifications
+          returns: 404

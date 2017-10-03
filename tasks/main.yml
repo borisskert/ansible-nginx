@@ -25,11 +25,11 @@
     src: rules/proxy_parameters.conf.j2
     dest: "{{rules_folder}}/{{proxy_parameters_file}}"
 
-- include: create_http_config.yml site_name={{ item.key }} site_server_name={{ item.value.server_name }} upstream_port={{ item.value.port }}
-  with_dict: "{{ http_upstreams }}"
-
-- include: create_https_config.yml site_name={{ item.key }} site_server_name={{ item.value.server_name }} upstream_port={{ item.value.port }}
-  with_dict: "{{ https_upstreams }}"
+- name: template site config
+  template:
+    src: conf.d/site.conf.j2
+    dest: "{{conf_folder}}/{{item.key}}.conf"
+  with_dict: "{{ configs }}"
 
 - include: create_dh_parameter.yml
 
