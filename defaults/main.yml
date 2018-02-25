@@ -35,5 +35,4 @@ ticketkey_renew_script: "{{script_folder}}/renew_ticketkey.bash"
 ticketkey_renew_cron_job: /etc/cron.d/nginx_renew_ticketkey
 ticketkey_renew_log: /var/log/nginx/ticketkey_renewed.log
 
-http_upstreams: {}
-https_upstreams: {}
+configs: {}

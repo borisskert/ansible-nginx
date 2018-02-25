@@ -1,34 +1,73 @@
-install-docker-nginx
-====================
+# install-docker-nginx
 
 Installs nginx as docker systemd service.
 
-System requirements
--------------------
+## System requirements
 
 * Ubuntu 16.04
 * Docker
 
-Role requirements
------------------
+## Role requirements
 
 * python-docker
 
-Tasks
------
+## Tasks
 
 * Create volume paths for docker container
 * Create configs via templates
 * Setup systemd unit file
 * Start/Restart/Reload service
 
-Role parameters
---------------
+## Role parameters
 
-TODO
+### Main config
 
-Example Playbook
-----------------
+| Variable      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| image_name    | text | no         | nginx   | Docker image name     |
+| image_version | text | no         | 1.13.5-alpine | Docker image version |
+| https_port    | port as number | no | 443         |  |
+| http_port     | port as number | no | 80          |  |
+| conf_folder   | path as text   | no | /srv/docker/nginx/conf.d |  |
+| rules_folder  | path as text   | no | /srv/docker/nginx/rules  |  |
+| certs_folder  | path as text   | no | /srv/docker/nginx/certs  |  |
+| ssl_folder    | path as text   | no | /srv/docker/nginx/ssl    |  |
+| www_folder    | path as text   | no | /srv/docker/nginx/www    |  |
+| log_folder                    | path as text | no | /var/log/nginx               |  |
+| script_folder                 | path as text | no | /opt/nginx                   |  |
+| container_name                | text         | no | nginx.service                |  |
+| clear_dh_parameter            | boolean      | no | false                        |  |
+| dh_parameter_bits             | integer number | no | 4096                       |  |
+| configs                       | site config as embedded object | no | <empty object> |  |
+
+### mainconfig.config
+
+The site config object is structured as map:
+ the key represents the config name, the value is an embedded object with following structure:
+
+| Property      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| upstreams     | site upstream as embedded object | no | <empty object> | defines upstreams |
+| https         | boolean                          | no | false          | defines if this site is accessible secured via https or not |
+| server_name   | text                             | yes |               | defines the site server_name                                |
+| locations     | array of locations               | no  | <empty array> | defines the site locations                                  |
+
+#### siteconfig.upstream
+
+| Property      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| upstream_name | text | yes |  | the unique name of the corresponding upstream |
+| upstream_url  | url as text | yes |  |  |
+
+#### siteconfig.location
+
+| Property      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| location      | url as text | yes |         | like: /service/       |
+| proxy_to      | absolute url as text | no | <empty> | like: http://harbor_ui/service/ |
+| returns       |                      | no | <empty> | like: 404                       |
+
+## Example Playbook
 
 Usage (without parameters):
 
@@ -41,29 +80,29 @@ Usage (with parameters):
     - hosts: servers
       roles:
       - role: install-docker-nginx
-    configs:
-      gitlab:
-        https: false
-        upstreams:
-          gitlab: "172.17.0.1:10080"
-        server_name: git.flandigt.de
-        locations:
-        - location: /
-          proxy_to: http://gitlab/
-      harbor_ui:
-        https: false
-        upstreams:
-          harbor_ui: "172.17.0.1:50080"
-          harbor_registry: "172.17.0.1:55000"
-        server_name: harbor.flandigt.de
-        locations:
-        - location: /
-          proxy_to: http://harbor_ui/
-        - location: /v1/
-          returns: 404
-        - location: /v2/
-          proxy_to: http://harbor_registry/v2/
-        - location: /service/
-          proxy_to: http://harbor_ui/service/
-        - location: /service/notifications
-          returns: 404
+        configs:
+          gitlab:
+            https: false
+            upstreams:
+              gitlab: "172.17.0.1:10080"
+            server_name: git.flandigt.de
+            locations:
+            - location: /
+              proxy_to: http://gitlab/
+          harbor_ui:
+            https: false
+            upstreams:
+              harbor_ui: "172.17.0.1:50080"
+              harbor_registry: "172.17.0.1:55000"
+            server_name: harbor.flandigt.de
+            locations:
+            - location: /
+              proxy_to: http://harbor_ui/
+            - location: /v1/
+              returns: 404
+            - location: /v2/
+              proxy_to: http://harbor_registry/v2/
+            - location: /service/
+              proxy_to: http://harbor_ui/service/
+            - location: /service/notifications
+              returns: 404
