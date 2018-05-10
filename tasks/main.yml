@@ -2,7 +2,7 @@
 - name: pull image
   docker_image:
     name: "{{image_name}}:{{image_version}}"
-  register: docker_image
+  register: dockerimage
 
 - name: Create systemd unit file
   template:
@@ -55,7 +55,7 @@
     name: nginx
     state: restarted
     enabled: yes
-  when: docker_image.changed or nginx_service.changed
+  when: dockerimage.changed or nginx_service.changed
   register: nginx_restart
 
 - name: Reload service
