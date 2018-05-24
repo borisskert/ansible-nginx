@@ -25,16 +25,21 @@ server {
 
   include /etc/nginx/rules/{{ssl_parameters_file}};
 
-  {% for location in item.value.locations %}
+{% for location in item.value.locations %}
   location {{location.location}} {
-    {% if location.proxy_to is defined %}
+{% if location.options is defined %}
+{% for key, value in location.options.iteritems() %}
+    {{key}} {{ value }};
+{% endfor %}
+{% endif %}
+{% if location.proxy_to is defined %}
     proxy_pass {{location.proxy_to}};
     include /etc/nginx/rules/{{proxy_parameters_file}};
-    {% elif location.returns is defined%}
+{% elif location.returns is defined %}
     return {{location.returns}};
-    {% endif %}
+{% endif %}
   }
-  {% endfor %}
+{% endfor %}
 
   location ~ /.well-known {
     root /var/www/html;
@@ -51,6 +56,11 @@ server {
 
 {% for location in item.value.locations %}
   location {{location.location}} {
+{% if location.options is defined %}
+{% for key, value in location.options.iteritems() %}
+    {{key}} {{ value }};
+{% endfor %}
+{% endif %}
 {% if location.proxy_to is defined %}
     proxy_pass {{location.proxy_to}};
     include /etc/nginx/rules/{{proxy_parameters_file}};

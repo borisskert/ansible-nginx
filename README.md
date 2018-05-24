@@ -66,6 +66,7 @@ The site config object is structured as map:
 | location      | url as text | yes |         | like: /service/       |
 | proxy_to      | absolute url as text | no | <empty> | like: http://harbor_ui/service/ |
 | returns       |                      | no | <empty> | like: 404                       |
+| options       | dictionary (key-value pairs) | no | <empty> | Nginx options to be templated in your location config |
 
 ## Example Playbook
 
@@ -89,6 +90,8 @@ Usage (with parameters):
             locations:
             - location: /
               proxy_to: http://gitlab/
+              options:
+                client_max_body_size: 8192m
           harbor_ui:
             https: false
             upstreams:
