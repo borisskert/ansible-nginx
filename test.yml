@@ -6,12 +6,14 @@
   - apt:
       name: python-docker
       update_cache: yes
+    changed_when: False
 
   post_tasks:
   - apt:
       name: python-docker
       state: absent
       purge: yes
+    changed_when: False
 
   roles:
   - role: '.'

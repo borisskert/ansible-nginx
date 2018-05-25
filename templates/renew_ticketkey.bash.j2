@@ -1,12 +1,4 @@
 #!/bin/bash
 set -e
 
-echo "*** $(date -R) ***"
-echo "Starting ticketkey renew..."
-
 head -c 48 /dev/urandom > {{ticketkey_file_path}}
-docker exec {{container_name}} nginx -s reload
-
-echo "Ticketkey renew finished."
-echo "*** $(date -R) ***"
-echo "******************"

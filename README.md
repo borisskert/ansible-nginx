@@ -5,6 +5,7 @@ Installs nginx as docker systemd service.
 ## System requirements
 
 * Ubuntu 16.04
+* Systemd
 * Docker
 
 ## Role requirements
@@ -17,6 +18,8 @@ Installs nginx as docker systemd service.
 * Create configs via templates
 * Setup systemd unit file
 * Start/Restart/Reload service
+* Setup systemd service to reload nginx configuration (default name: `nginx.reload.service`)
+* Optionally setup systemd service to renew session ticket encryption keys)
 
 ## Role parameters
 
@@ -35,9 +38,9 @@ Installs nginx as docker systemd service.
 | www_folder    | path as text   | no | /srv/docker/nginx/www    |  |
 | log_folder                    | path as text | no | /var/log/nginx               |  |
 | script_folder                 | path as text | no | /opt/nginx                   |  |
-| container_name                | text         | no | nginx.service                |  |
 | clear_dh_parameter            | boolean      | no | false                        |  |
 | dh_parameter_bits             | integer number | no | 4096                       |  |
+| ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
 | configs                       | site config as embedded object | no | <empty object> |  |
 
 ### mainconfig.config
@@ -81,6 +84,8 @@ Usage (with parameters):
     - hosts: servers
       roles:
       - role: install-docker-nginx
+        certs_folder: "/mydrive/letsencrypt/config/live"
+        ticketkey_enabled: yes
         configs:
           gitlab:
             https: false

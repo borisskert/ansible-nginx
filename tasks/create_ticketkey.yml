@@ -4,20 +4,13 @@
     path: "{{ticketkey_file_path}}"
   register: nginx_ticketkey_check
 
-- name: Generate ticketkey file
-  raw: "head -c 48 /dev/urandom > {{ticketkey_file_path}}"
-  when: nginx_ticketkey_check.stat.exists == False
-
 - name: Create renew ticketkey script
   template:
     src: renew_ticketkey.bash.j2
     dest: "{{ticketkey_renew_script}}"
     mode: 0755
+  register: ticketkey_renew_script_creation
 
-- name: Setup renew ticketkey cron job
-  template:
-    src: nginx_ticketkey_renew.cron.j2
-    dest: "{{ticketkey_renew_cron_job}}"
-    owner: root
-    group: root
-    mode: 0644
+- name: Generate ticketkey file
+  raw: "{{ticketkey_renew_script}}"
+  when: ticketkey_enabled and (not nginx_ticketkey_check.stat.exists or ticketkey_renew_script_creation.changed)

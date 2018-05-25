@@ -15,8 +15,6 @@ letsencrypt_well_known_folder: "{{www_folder}}/.well-known"
 log_folder: /var/log/nginx
 script_folder: /opt/nginx
 
-container_name: nginx.service
-
 ssl_parameters_file: ssl_parameters.conf
 proxy_parameters_file: proxy_parameters.conf
 
@@ -27,12 +25,9 @@ dh_parameter_bits: 4096
 
 logrotate_config: /etc/logrotate.d/nginx
 
-reload_script_path: /opt/nginx/reload.bash
-
+ticketkey_enabled: no
 ticketkey_filename: nginx_ticketkey
 ticketkey_file_path: "{{ssl_folder}}/{{ticketkey_filename}}"
 ticketkey_renew_script: "{{script_folder}}/renew_ticketkey.bash"
-ticketkey_renew_cron_job: /etc/cron.d/nginx_renew_ticketkey
-ticketkey_renew_log: /var/log/nginx/ticketkey_renewed.log
 
 configs: {}

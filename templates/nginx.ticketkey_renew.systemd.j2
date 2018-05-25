@@ -1,0 +1,8 @@
+[Unit]
+Description = nginx ticketkey renew service
+
+[Service]
+ExecStart = /bin/bash {{ticketkey_renew_script}}
+ExecStopPost  = -/bin/systemctl start {{reload_service_name}}
+Restart = no
+TimeoutSec = 60

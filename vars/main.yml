@@ -1,0 +1,8 @@
+---
+service_name: nginx
+systemd_service_name: "{{service_name}}"
+reload_service_name: "{{service_name}}.reload"
+ticketkey_renew_service_name: "{{service_name}}.ticketkey_renew"
+
+docker_container:
+  name: "{{service_name}}.service"
