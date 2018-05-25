@@ -58,6 +58,14 @@
   when: dockerimage.changed or nginx_service.changed
   register: nginx_restart
 
-- name: Reload service
+- name: Start service (if necessary)
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  register: nginx_start
+
+- name: Reload service (needed, if letsencrypt is generating a new certificate)
   command: docker exec {{container_name}} nginx -s reload
-  when: not(nginx_restart.changed)
+  when: not(nginx_restart.changed or nginx_start.changed)
+  changed_when: False
