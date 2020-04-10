@@ -1,5 +1,5 @@
 image_name: nginx
-image_version: 1.13.5-alpine
+image_version: 1.17.9-alpine
 
 https_port: 443
 http_port: 80

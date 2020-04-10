@@ -1,4 +1,4 @@
-{% for upstream_name, upstream_url in item.value.upstreams.iteritems() %}
+{% for upstream_name, upstream_url in item.value.upstreams.items() %}
 upstream {{upstream_name}} {
   server {{upstream_url}};
 }
@@ -28,7 +28,7 @@ server {
 {% for location in item.value.locations %}
   location {{location.location}} {
 {% if location.options is defined %}
-{% for key, value in location.options.iteritems() %}
+{% for key, value in location.options.items() %}
     {{key}} {{ value }};
 {% endfor %}
 {% endif %}
@@ -57,7 +57,7 @@ server {
 {% for location in item.value.locations %}
   location {{location.location}} {
 {% if location.options is defined %}
-{% for key, value in location.options.iteritems() %}
+{% for key, value in location.options.items() %}
     {{key}} {{ value }};
 {% endfor %}
 {% endif %}

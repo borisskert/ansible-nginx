@@ -4,7 +4,8 @@ Installs nginx as docker systemd service.
 
 ## System requirements
 
-* Ubuntu 16.04
+* Ubuntu 16.04 or 18.04
+* Python 3
 * Systemd
 * Docker
 
@@ -28,7 +29,7 @@ Installs nginx as docker systemd service.
 | Variable      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
 | image_name    | text | no         | nginx   | Docker image name     |
-| image_version | text | no         | 1.13.5-alpine | Docker image version |
+| image_version | text | no         | 1.17.9-alpine | Docker image version |
 | https_port    | port as number | no | 443         |  |
 | http_port     | port as number | no | 80          |  |
 | conf_folder   | path as text   | no | /srv/docker/nginx/conf.d |  |
