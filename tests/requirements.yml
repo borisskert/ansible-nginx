@@ -1,0 +1,8 @@
+---
+- name: install-docker
+  src: https://github.com/borisskert/ansible-docker.git
+  scm: git
+
+- name: install-docker-compose
+  src: https://github.com/borisskert/ansible-docker-compose.git
+  scm: git

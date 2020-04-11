@@ -115,3 +115,16 @@ Usage (with parameters):
               proxy_to: http://harbor_ui/service/
             - location: /service/notifications
               returns: 404
+
+## Run tests
+
+Requirements:
+
+* Ansible
+* Vagrant
+* VirtualBox
+
+```shell script
+$ cd tests
+$ ./test.sh
+```

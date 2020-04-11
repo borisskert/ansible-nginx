@@ -8,8 +8,9 @@
 - name: check Diffie-Hellman parameter existence
   stat:
     path: "{{dh_parameter_path}}"
-  register: dh_parameter
+  register: dh_parameter_file
 
 - name: build Diffie-Hellman parameter (may take a long time)
   command: "openssl dhparam -outform PEM -out {{dh_parameter_path}} {{dh_parameter_bits}}"
-  when: dh_parameter.stat is defined and not dh_parameter.stat.exists
+  when: not dh_parameter_file.stat.exists
+  register: dh_parameter

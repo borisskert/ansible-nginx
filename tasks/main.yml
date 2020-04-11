@@ -2,6 +2,7 @@
 - name: pull image
   docker_image:
     name: "{{image_name}}:{{image_version}}"
+    source: pull
   register: dockerimage
 
 - name: Create systemd unit file
@@ -46,17 +47,20 @@
   template:
     src: rules/ssl_parameters.conf.j2
     dest: "{{rules_folder}}/{{ssl_parameters_file}}"
+  register: ssl_rules
 
 - name: template reverse proxy rules
   template:
     src: rules/proxy_parameters.conf.j2
     dest: "{{rules_folder}}/{{proxy_parameters_file}}"
+  register: proxy_rules
 
 - name: template site config
   template:
     src: conf.d/site.conf.j2
     dest: "{{conf_folder}}/{{item.key}}.conf"
   with_dict: "{{ configs }}"
+  register: site_config
 
 - include: create_dh_parameter.yml
 
@@ -96,5 +100,7 @@
   service:
     name: "{{reload_service_name}}"
     state: started
-  when: not(nginx_restart.changed or nginx_start.changed)
-  changed_when: False
+  when: >
+    not(nginx_restart.changed or nginx_start.changed)
+    and (ssl_rules.changed or proxy_rules.changed
+    or site_config.changed or dh_parameter.changed)
