@@ -25,7 +25,9 @@
 
     - role: ansible-nginx
 #      image_version: 1.16.1-alpine
+      volume: /srv/docker/nginx
       clear_dh_parameter: no
+      dh_parameter_bits: 2048
       configs:
         gitlab:
           https: false

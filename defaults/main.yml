@@ -4,30 +4,7 @@ image_version: 1.17.9-alpine
 https_port: 443
 http_port: 80
 
-conf_folder: /srv/docker/nginx/conf.d
-rules_folder: /srv/docker/nginx/rules
-certs_folder: /srv/docker/nginx/certs
-ssl_folder: /srv/docker/nginx/ssl
-www_folder: /srv/docker/nginx/www
-
-letsencrypt_well_known_folder: "{{www_folder}}/.well-known"
-
-log_folder: /var/log/nginx
-script_folder: /opt/nginx
-
-ssl_parameters_file: ssl_parameters.conf
-proxy_parameters_file: proxy_parameters.conf
-
-clear_dh_parameter: false
-dh_parameter_filename: dh_param.pem
-dh_parameter_path: "{{ssl_folder}}/{{dh_parameter_filename}}"
-dh_parameter_bits: 4096
-
-logrotate_config: /etc/logrotate.d/nginx
-
-ticketkey_enabled: no
-ticketkey_filename: nginx_ticketkey
-ticketkey_file_path: "{{ssl_folder}}/{{ticketkey_filename}}"
-ticketkey_renew_script: "{{script_folder}}/renew_ticketkey.bash"
-
 configs: {}
+
+volume: /srv/docker/nginx
+working_directory: /opt/nginx

@@ -93,7 +93,6 @@
   service:
     name: nginx
     state: started
-    enabled: yes
   register: nginx_start
 
 - name: Reload service (needed for eventually config changes)
