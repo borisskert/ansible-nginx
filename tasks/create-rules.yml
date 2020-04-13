@@ -1,0 +1,12 @@
+---
+- name: template ssl rules
+  template:
+    src: rules/ssl_parameters.conf.j2
+    dest: "{{rules_folder}}/{{ssl_parameters_file}}"
+  register: ssl_rules
+
+- name: template reverse proxy rules
+  template:
+    src: rules/proxy_parameters.conf.j2
+    dest: "{{rules_folder}}/{{proxy_parameters_file}}"
+  register: proxy_rules

@@ -19,7 +19,3 @@ ssl_session_tickets on;
 {% if ticketkey_enabled %}
 ssl_session_ticket_key /etc/nginx/ssl/{{ticketkey_filename}};
 {% endif %}
-
-add_header X-Content-Type-Options "nosniff" always;
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header X-Xss-Protection "1";
