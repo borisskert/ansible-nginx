@@ -21,13 +21,12 @@
       storage_driver: overlay2
       cleanup_enabled: true
 
-    - role: install-docker-compose
-
     - role: ansible-nginx
 #      image_version: 1.16.1-alpine
       volume: /srv/docker/nginx
       clear_dh_parameter: no
       dh_parameter_bits: 2048
+      ticketkey_enabled: yes
       configs:
         gitlab:
           https: false

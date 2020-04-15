@@ -11,26 +11,8 @@
     dest: "/etc/systemd/system/{{systemd_service_name}}.service"
     owner: root
     group: root
-    mode: 0554
+    mode: 0644
   register: nginx_service
-
-- name: Create ticketkey renew service
-  template:
-    src: nginx.ticketkey_renew.systemd.j2
-    dest: "/etc/systemd/system/{{ticketkey_renew_service_name}}.service"
-    owner: root
-    group: root
-    mode: 0554
-  register: nginx_ticketkey_renew_service
-
-- name: Create ticketkey renew timer
-  template:
-    src: nginx.ticketkey_renew.timer.systemd.j2
-    dest: "/etc/systemd/system/{{ticketkey_renew_service_name}}.timer"
-    owner: root
-    group: root
-    mode: 0554
-  register: nginx_ticketkey_renew_service
 
 - name: Create reloader service
   template:
@@ -38,7 +20,7 @@
     dest: "/etc/systemd/system/{{reload_service_name}}.service"
     owner: root
     group: root
-    mode: 0554
+    mode: 0644
   register: nginx_reload_service
 
 - include: create_volumes.yml
@@ -54,16 +36,27 @@
 
 - include: create_dh_parameter.yml
 
-- include: create_ticketkey.yml
-
 - name: Setup logrotate config
   template:
     src: logrotate.j2
     dest: "{{logrotate_config}}"
 
+- include: setup-ticketkey.yml
+
 - name: Reload systemd
   command: systemctl daemon-reload
-  when: nginx_service.changed or nginx_reload_service.changed or nginx_ticketkey_renew_service.changed
+  when: >
+    nginx_service.changed
+    or nginx_reload_service.changed
+    or nginx_ticketkey_renew_service.changed
+    or nginx_ticketkey_renew_timer.changed
+
+- name: Generate new ticketkey
+  service:
+    name: "{{ticketkey_renew_service_name}}.service"
+    state: started
+  when: >
+    ticketkey_enabled and not nginx_ticketkey_check.stat.exists
 
 - name: Restart service
   service:
@@ -73,19 +66,13 @@
   when: dockerimage.changed or nginx_service.changed
   register: nginx_restart
 
-- name: Setup ticketkey renew service timer
-  systemd:
-    name: "{{ticketkey_renew_service_name}}.timer"
-    state: "{{ 'started' if ticketkey_enabled else 'stopped' | default('stopped') }}"
-    enabled: yes
-
 - name: Start service (if necessary)
   service:
     name: nginx
     state: started
   register: nginx_start
 
-- name: Reload service (needed for eventually config changes)
+- name: Reload nginx (needed for eventually config changes)
   service:
     name: "{{reload_service_name}}"
     state: started

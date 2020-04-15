@@ -8,6 +8,8 @@ Requires    = docker.service
 
 [Service]
 ExecStartPre = -/usr/bin/docker rm -f {{docker_container.name}}
+ExecStartPre = /usr/bin/docker pull {{image_name}}:{{image_version}}
+
 ExecStart = /usr/bin/docker run --name {{docker_container.name}} \
 {% if conf_folder != "" %}
             --volume {{conf_folder}}:/etc/nginx/conf.d \

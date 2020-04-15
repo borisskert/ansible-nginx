@@ -1,0 +1,34 @@
+---
+- name: Check ticketkey file existence
+  stat:
+    path: "{{ticketkey_file_path}}"
+  register: nginx_ticketkey_check
+
+- name: Create ticketkey renew service
+  template:
+    src: nginx.ticketkey_renew.systemd.j2
+    dest: "/etc/systemd/system/{{ticketkey_renew_service_name}}.service"
+    owner: root
+    group: root
+    mode: 0644
+  register: nginx_ticketkey_renew_service
+
+- name: Setup ticketkey renew service
+  systemd:
+    name: "{{ticketkey_renew_service_name}}.service"
+    enabled: yes
+
+- name: Create ticketkey renew timer
+  template:
+    src: nginx.ticketkey_renew.timer.systemd.j2
+    dest: "/etc/systemd/system/{{ticketkey_renew_service_name}}.timer"
+    owner: root
+    group: root
+    mode: 0644
+  register: nginx_ticketkey_renew_timer
+
+- name: Setup ticketkey renew service timer
+  systemd:
+    name: "{{ticketkey_renew_service_name}}.timer"
+    state: "{{ 'started' if ticketkey_enabled else 'stopped' | default('stopped') }}"
+    enabled: yes
