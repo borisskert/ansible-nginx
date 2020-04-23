@@ -75,47 +75,63 @@ The site config object is structured as map:
 
 ## Example Playbook
 
-Usage (without parameters):
+### Add to `requirements.yml`:
 
+```yaml
+- name: install-nginx
+  src: https://github.com/borisskert/ansible-nginx.git
+  scm: git
+```
+
+Minimal playbook:
+
+```yaml
     - hosts: servers
       roles:
-      - install-docker-nginx
+      - install-nginx
+```
 
-Usage (with parameters):
+Example with parameters:
 
-    - hosts: servers
-      roles:
-      - role: install-docker-nginx
-        certs_folder: "/mydrive/letsencrypt/config/live"
-        ticketkey_enabled: yes
-        configs:
-          gitlab:
-            https: false
-            upstreams:
-              gitlab: "172.17.0.1:10080"
-            server_name: git.flandigt.de
-            locations:
-            - location: /
-              proxy_to: http://gitlab/
-              options:
-                client_max_body_size: 8192m
-          harbor_ui:
-            https: false
-            upstreams:
-              harbor_ui: "172.17.0.1:50080"
-              harbor_registry: "172.17.0.1:55000"
-            server_name: harbor.flandigt.de
-            locations:
-            - location: /
-              proxy_to: http://harbor_ui/
-            - location: /v1/
-              returns: 404
-            - location: /v2/
-              proxy_to: http://harbor_registry/v2/
-            - location: /service/
-              proxy_to: http://harbor_ui/service/
-            - location: /service/notifications
-              returns: 404
+```yaml
+- hosts: servers
+  roles:
+  - role: install-nginx
+    volume: "/mydrive/nginx"
+    certs_folder: "/mydrive/letsencrypt/config/live"
+    https_port: 443
+    http_port: 80
+    ticketkey_enabled: yes
+    dh_parameter_bits: 2048
+    configs:
+      gitlab:
+        https: false
+        upstreams:
+          gitlab: "172.17.0.1:10080"
+        server_name: git.flandigt.de
+        locations:
+        - location: /
+          proxy_to: http://gitlab/
+          options:
+            client_max_body_size: 8192m
+      harbor_ui:
+        https: false
+        upstreams:
+          harbor_ui: "172.17.0.1:50080"
+          harbor_registry: "172.17.0.1:55000"
+        server_name: harbor.flandigt.de
+        locations:
+        - location: /
+          proxy_to: http://harbor_ui/
+        - location: /v1/
+          returns: 404
+        - location: /v2/
+          proxy_to: http://harbor_registry/v2/
+        - location: /service/
+          proxy_to: http://harbor_ui/service/
+        - location: /service/notifications
+          returns: 404
+```
 
 ## Run tests
 
