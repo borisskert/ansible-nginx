@@ -30,13 +30,14 @@ Installs nginx as docker systemd service.
 |---------------|------|------------|---------|-----------------------|
 | image_name    | text | no         | nginx   | Docker image name     |
 | image_version | text | no         | 1.17.9-alpine | Docker image version |
-| https_port    | port as number | no | 443         |  |
-| http_port     | port as number | no | 80          |  |
-| conf_folder   | path as text   | no | /srv/docker/nginx/conf.d |  |
-| rules_folder  | path as text   | no | /srv/docker/nginx/rules  |  |
-| certs_folder  | path as text   | no | /srv/docker/nginx/certs  |  |
-| ssl_folder    | path as text   | no | /srv/docker/nginx/ssl    |  |
-| www_folder    | path as text   | no | /srv/docker/nginx/www    |  |
+| https_port    | port as number | no | 443         | Your webserver's https listening port |
+| http_port     | port as number | no | 80          | Your webserver's http listening port |
+| volume        | path as text   | yes | <empty>    | The location your server will store its files |
+| conf_folder   | path as text   | no | {{volume}}/conf.d |  |
+| rules_folder  | path as text   | no | {{volume}}/rules  |  |
+| certs_folder  | path as text   | no | {{volume}}/certs  |  |
+| ssl_folder    | path as text   | no | {{volume}}/ssl    |  |
+| www_folder    | path as text   | no | {{volume}}/www    |  |
 | log_folder                    | path as text | no | /var/log/nginx               |  |
 | script_folder                 | path as text | no | /opt/nginx                   |  |
 | clear_dh_parameter            | boolean      | no | false                        |  |

@@ -6,5 +6,11 @@ http_port: 80
 
 configs: {}
 
-volume: /srv/docker/nginx
+volume: ''
+conf_folder: "{{volume}}/conf.d"
+rules_folder: "{{volume}}/rules"
+certs_folder: "{{volume}}/certs"
+ssl_folder: "{{volume}}/ssl"
+www_folder: "{{volume}}/www"
+
 working_directory: /opt/nginx

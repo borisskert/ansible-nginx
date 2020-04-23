@@ -1,0 +1,7 @@
+---
+- name: Check 'volume' parameter
+  assert:
+    that:
+      - "volume is defined"
+      - "volume | length > 0"
+    fail_msg: "parameter 'volume' is missing"

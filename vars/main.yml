@@ -7,12 +7,6 @@ ticketkey_renew_service_name: "{{service_name}}.ticketkey_renew"
 docker_container:
   name: "{{service_name}}.service"
 
-conf_folder: "{{volume}}/conf.d"
-rules_folder: "{{volume}}/rules"
-certs_folder: "{{volume}}/certs"
-ssl_folder: "{{volume}}/ssl"
-www_folder: "{{volume}}/www"
-
 letsencrypt_well_known_folder: "{{www_folder}}/.well-known"
 
 log_folder: /var/log/nginx

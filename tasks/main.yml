@@ -1,4 +1,6 @@
 ---
+- include: check-parameters.yml
+
 - name: pull image
   docker_image:
     name: "{{image_name}}:{{image_version}}"
