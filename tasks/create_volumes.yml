@@ -5,7 +5,7 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: conf_folder != ''
 
 - name: create rules directory
@@ -14,7 +14,7 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: rules_folder != ''
 
 - name: create certs directory
@@ -23,16 +23,16 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: certs_folder != ''
 
-- name: create certs directory
+- name: create ssl directory
   file:
     path: "{{ssl_folder}}"
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: ssl_folder != ''
 
 - name: create www directory
@@ -41,7 +41,7 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: www_folder != ''
 
 - name: create letsencrypt well-known directory
@@ -50,7 +50,7 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: www_folder != ''
 
 - name: create log directory
@@ -59,7 +59,7 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: log_folder != ''
 
 - name: create script directory
@@ -68,5 +68,5 @@
     state: directory
     owner: root
     group: root
-    mode: 775
+    mode: 0755
   when: script_folder != ''
