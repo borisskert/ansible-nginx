@@ -62,7 +62,7 @@
 
 - name: Restart service
   service:
-    name: nginx
+    name: "{{service_name}}"
     state: restarted
     enabled: yes
   when: dockerimage.changed or nginx_service.changed
@@ -70,7 +70,7 @@
 
 - name: Start service (if necessary)
   service:
-    name: nginx
+    name: "{{service_name}}"
     state: started
   register: nginx_start
 

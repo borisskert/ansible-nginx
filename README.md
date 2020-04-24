@@ -38,7 +38,7 @@ Installs nginx as docker systemd service.
 | certs_folder  | path as text   | no | {{volume}}/certs  |  |
 | ssl_folder    | path as text   | no | {{volume}}/ssl    |  |
 | www_folder    | path as text   | no | {{volume}}/www    |  |
-| log_folder                    | path as text | no | /var/log/nginx               |  |
+| log_folder    | path as text   | no | /var/log/nginx    |  |
 | script_folder                 | path as text | no | /opt/nginx                   |  |
 | clear_dh_parameter            | boolean      | no | false                        |  |
 | dh_parameter_bits             | integer number | no | 4096                       |  |
@@ -88,7 +88,8 @@ Minimal playbook:
 ```yaml
     - hosts: servers
       roles:
-      - install-nginx
+      - role: install-nginx
+        volume: /srv/nginx
 ```
 
 Example with parameters:
@@ -97,8 +98,9 @@ Example with parameters:
 - hosts: servers
   roles:
   - role: install-nginx
-    volume: "/mydrive/nginx"
-    certs_folder: "/mydrive/letsencrypt/config/live"
+    volume: /srv/nginx
+    certs_folder: /srv/letsencrypt/config/live
+    logs_folder: /var/log/nginx
     https_port: 443
     http_port: 80
     ticketkey_enabled: yes
