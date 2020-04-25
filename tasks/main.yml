@@ -7,6 +7,19 @@
     source: pull
   register: dockerimage
 
+- include: create_volumes.yml
+
+- include: create-rules.yml
+
+- include: create_dh_parameter.yml
+
+- name: template site config
+  template:
+    src: conf.d/site.conf.j2
+    dest: "{{conf_folder}}/{{item.key}}.conf"
+  with_dict: "{{ configs }}"
+  register: site_config
+
 - name: Create systemd unit file
   template:
     src: nginx.systemd.j2
@@ -25,19 +38,6 @@
     mode: 0644
   register: nginx_reload_service
 
-- include: create_volumes.yml
-
-- include: create-rules.yml
-
-- name: template site config
-  template:
-    src: conf.d/site.conf.j2
-    dest: "{{conf_folder}}/{{item.key}}.conf"
-  with_dict: "{{ configs }}"
-  register: site_config
-
-- include: create_dh_parameter.yml
-
 - name: Setup logrotate config
   template:
     src: logrotate.j2
@@ -53,14 +53,14 @@
     or nginx_ticketkey_renew_service.changed
     or nginx_ticketkey_renew_timer.changed
 
-- name: Generate new ticketkey
+- name: Setup ticketkey renew service
   service:
     name: "{{ticketkey_renew_service_name}}.service"
     state: started
   when: >
     ticketkey_enabled and not nginx_ticketkey_check.stat.exists
 
-- name: Restart service
+- name: Restart nginx (on changes)
   service:
     name: "{{service_name}}"
     state: restarted
@@ -68,7 +68,7 @@
   when: dockerimage.changed or nginx_service.changed
   register: nginx_restart
 
-- name: Start service (if necessary)
+- name: Start nginx (if necessary)
   service:
     name: "{{service_name}}"
     state: started

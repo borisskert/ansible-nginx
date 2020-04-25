@@ -1,2 +1,9 @@
+[Unit]
+Description=Run daily nginx ticketkey renew
+
 [Timer]
 OnCalendar = daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
