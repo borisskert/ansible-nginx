@@ -1,16 +1,16 @@
 [Install]
-WantedBy = multi-user.target
+WantedBy=multi-user.target
 
 [Unit]
-Description = nginx service
-After       = docker.service
-Requires    = docker.service
+Description=nginx service
+After=docker.service
+Requires=docker.service
 
 [Service]
-ExecStartPre = -/usr/bin/docker rm -f {{docker_container.name}}
-ExecStartPre = /usr/bin/docker pull {{image_name}}:{{image_version}}
+ExecStartPre=-/usr/bin/docker rm -f {{docker_container.name}}
+ExecStartPre=/usr/bin/docker pull {{image_name}}:{{image_version}}
 
-ExecStart = /usr/bin/docker run --name {{docker_container.name}} \
+ExecStart=/usr/bin/docker run --name {{docker_container.name}} \
 {% if conf_folder != "" %}
             --volume {{conf_folder}}:/etc/nginx/conf.d \
 {% endif %}
@@ -36,8 +36,9 @@ ExecStart = /usr/bin/docker run --name {{docker_container.name}} \
             --publish {{http_port}}:80 \
 {% endif %}
             {{image_name}}:{{image_version}}
-ExecStop  = -/usr/bin/docker stop {{docker_container.name}}
-ExecStopPost  = -/usr/bin/docker rm -f {{docker_container.name}}
-Restart = always
-RestartSec = 60s
-TimeoutSec=60
+ExecStop=-/usr/bin/docker stop {{docker_container.name}}
+ExecStopPost=-/usr/bin/docker rm -f {{docker_container.name}}
+
+Restart=always
+RestartSec=60s
+TimeoutSec=3600
