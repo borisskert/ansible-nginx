@@ -9,23 +9,16 @@
     docker_volumes: /srv/docker
     docker_network_interface: 172.17.0.1
 
-  pre_tasks:
-    - apt:
-        name: python3-pip
-        update_cache: yes
-    - pip:
-        name: docker
-
   roles:
     - role: install-docker
       storage_driver: overlay2
       cleanup_enabled: true
+      install_pip_docker: yes
 
     - role: ansible-nginx
-#      image_version: 1.16.1-alpine
       volume: /srv/docker/nginx
       clear_dh_parameter: no
-      dh_parameter_bits: 2048
+      dh_parameter_bits: 1024
       ticketkey_enabled: yes
       configs:
         gitlab:
