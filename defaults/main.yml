@@ -1,3 +1,4 @@
+---
 image_name: nginx
 image_version: 1.17.9-alpine
 
@@ -40,6 +41,6 @@ dh_parameter_path: "{{ssl_folder}}/{{dh_parameter_filename}}"
 
 logrotate_config: /etc/logrotate.d/nginx
 
-ticketkey_enabled: no
+ticketkey_enabled: false
 ticketkey_filename: nginx_ticketkey
 ticketkey_file_path: "{{ssl_folder}}/{{ticketkey_filename}}"

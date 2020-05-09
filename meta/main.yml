@@ -1,14 +1,17 @@
 ---
 galaxy_info:
-  author: flandiGT
+  author: borisskert
   description: Installation role for nginx docker container
-  min_ansible_version: 2.1
+  min_ansible_version: 2.9
+  license: MIT
   platforms:
-  - name: Ubuntu
-    versions:
-    - xenial
-  categories:
-  - development
-  - packaging
-  - system
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+        - focal
+  galaxy_tags:
+    - development
+    - packaging
+    - system
 dependencies: []

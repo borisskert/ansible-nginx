@@ -3,9 +3,9 @@
 
 - name: pull image
   docker_image:
-    name: "{{image_name}}:{{image_version}}"
+    name: "{{ image_name }}:{{ image_version }}"
     source: pull
-  register: dockerimage
+  notify: Restart nginx
 
 - include: create_volumes.yml
 
@@ -16,70 +16,44 @@
 - name: template site config
   template:
     src: conf.d/site.conf.j2
-    dest: "{{conf_folder}}/{{item.key}}.conf"
+    dest: "{{ conf_folder }}/{{ item.key }}.conf"
   with_dict: "{{ configs }}"
-  register: site_config
+  notify: Reload nginx
 
 - name: Create systemd unit file
   template:
     src: nginx.systemd.j2
-    dest: "/etc/systemd/system/{{systemd_service_name}}.service"
+    dest: "/etc/systemd/system/{{ systemd_service_name }}.service"
     owner: root
     group: root
     mode: 0644
-  register: nginx_service
+  notify:
+    - Reload systemd
+    - Restart nginx
 
 - name: Create reloader service
   template:
     src: nginx.reload.systemd.j2
-    dest: "/etc/systemd/system/{{reload_service_name}}.service"
+    dest: "/etc/systemd/system/{{ reload_service_name }}.service"
     owner: root
     group: root
     mode: 0644
-  register: nginx_reload_service
+  notify: Reload systemd
 
 - name: Setup logrotate config
   template:
     src: logrotate.j2
-    dest: "{{logrotate_config}}"
+    dest: "{{ logrotate_config }}"
 
 - include: setup-ticketkey.yml
 
-- name: Reload systemd
-  command: systemctl daemon-reload
-  when: >
-    nginx_service.changed
-    or nginx_reload_service.changed
-    or nginx_ticketkey_renew_service.changed
-    or nginx_ticketkey_renew_timer.changed
-
-- name: Setup ticketkey renew service
+- name: Enable nginx service
   service:
-    name: "{{ticketkey_renew_service_name}}.service"
-    state: started
-  when: >
-    ticketkey_enabled and not nginx_ticketkey_check.stat.exists
+    name: "{{ service_name }}"
+    enabled: true
+  register: service_state
+  changed_when: service_state.status.SubState != 'running'
+  notify: Start nginx
 
-- name: Restart nginx (on changes)
-  service:
-    name: "{{service_name}}"
-    state: restarted
-    enabled: yes
-  when: dockerimage.changed or nginx_service.changed
-  register: nginx_restart
-
-- name: Start nginx (if necessary)
-  service:
-    name: "{{service_name}}"
-    state: started
-    enabled: yes
-  register: nginx_start
-
-- name: Reload nginx (needed for eventually config changes)
-  service:
-    name: "{{reload_service_name}}"
-    state: started
-  when: >
-    not(nginx_restart.changed or nginx_start.changed)
-    and (ssl_rules.changed or proxy_rules.changed
-    or site_config.changed or dh_parameter.changed)
+- name: Flush handlers
+  meta: flush_handlers

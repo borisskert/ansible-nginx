@@ -1,72 +1,64 @@
 ---
 - name: create config directory
   file:
-    path: "{{conf_folder}}"
+    path: "{{ conf_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: conf_folder != ''
+    mode: 0750
 
 - name: create rules directory
   file:
-    path: "{{rules_folder}}"
+    path: "{{ rules_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: rules_folder != ''
+    mode: 0750
 
 - name: create certs directory
   file:
-    path: "{{certs_folder}}"
+    path: "{{ certs_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: certs_folder != ''
+    mode: 0750
 
 - name: create ssl directory
   file:
-    path: "{{ssl_folder}}"
+    path: "{{ ssl_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: ssl_folder != ''
+    mode: 0750
 
 - name: create www directory
   file:
-    path: "{{www_folder}}"
+    path: "{{ www_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: www_folder != ''
+    mode: 0750
 
 - name: create letsencrypt well-known directory
   file:
-    path: "{{letsencrypt_well_known_folder}}"
+    path: "{{ letsencrypt_well_known_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: www_folder != ''
+    mode: 0750
 
 - name: create log directory
   file:
-    path: "{{log_folder}}"
+    path: "{{ log_folder }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
-  when: log_folder != ''
+    mode: 0750
 
 - name: create script directory
   file:
-    path: "{{script_folder}}"
+    path: "{{ script_folder }}"
     state: directory
     owner: root
     group: root
     mode: 0755
-  when: script_folder != ''

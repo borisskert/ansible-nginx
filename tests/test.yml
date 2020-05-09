@@ -1,9 +1,6 @@
 ---
 - hosts: test_machine
-  become: yes
-
-- hosts: test_machine
-  become: yes
+  become: true
 
   vars:
     docker_volumes: /srv/docker
@@ -13,13 +10,13 @@
     - role: install-docker
       storage_driver: overlay2
       cleanup_enabled: true
-      install_pip_docker: yes
+      install_pip_docker: true
 
     - role: ansible-nginx
       volume: /srv/docker/nginx
-      clear_dh_parameter: no
+      clear_dh_parameter: false
       dh_parameter_bits: 1024
-      ticketkey_enabled: yes
+      ticketkey_enabled: true
       configs:
         gitlab:
           https: false
