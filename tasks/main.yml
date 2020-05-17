@@ -51,6 +51,10 @@
   service:
     name: "{{ service_name }}"
     enabled: true
+  when: not (
+      molecule_docker_environment is defined
+      and molecule_docker_environment | bool
+    )
   register: service_state
   changed_when: service_state.status.SubState != 'running'
   notify: Start nginx

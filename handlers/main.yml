@@ -2,6 +2,10 @@
 - name: Reload systemd
   systemd:
     daemon_reload: true
+  when: not (
+      molecule_docker_environment is defined
+      and molecule_docker_environment | bool
+    )
 
 - name: Start nginx
   service:
@@ -25,8 +29,11 @@
     state: restarted
   register: nginx_restart
   when: not (
-    nginx_start is defined
-    and nginx_start.changed
+      nginx_start is defined
+      and nginx_start.changed
+    ) and not (
+      molecule_docker_environment is defined
+      and molecule_docker_environment | bool
     )
 
 - name: Reload nginx
@@ -34,9 +41,12 @@
     name: "{{ reload_service_name }}"
     state: started
   when: not (
-    nginx_restart is defined
-    and nginx_restart.changed
+      nginx_restart is defined
+      and nginx_restart.changed
     ) and not (
-    nginx_start is defined
-    and nginx_start.changed
+      nginx_start is defined
+      and nginx_start.changed
+    ) and not (
+      molecule_docker_environment is defined
+      and molecule_docker_environment | bool
     )

@@ -1,0 +1,36 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: ./molecule/shared/requirements.yml
+
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+
+platforms:
+  - name: ansible-nginx-xenial
+    box: ubuntu/xenial64
+  - name: ansible-nginx-bionic
+    box: ubuntu/bionic64
+  - name: ansible-nginx-focal
+    box: ubuntu/focal64
+  - name: ansible-nginx-stretch
+    box: debian/stretch64
+  - name: ansible-nginx-buster
+    box: debian/buster64
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../shared/converge.yml
+  inventory:
+    host_vars:
+      ansible-nginx-stretch:
+        ansible_python_interpreter: /usr/bin/python3
+      ansible-nginx-buster:
+        ansible_python_interpreter: /usr/bin/python3
+
+verifier:
+  name: ansible

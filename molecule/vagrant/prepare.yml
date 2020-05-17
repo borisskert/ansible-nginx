@@ -1,0 +1,24 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+
+  roles:
+    - role: install-docker
+      storage_driver: overlay2
+      cleanup_enabled: false
+      install_pip_docker: true
+
+  post_tasks:
+    - name: should pull apache's docker image
+      docker_image:
+        name: httpd:2.4.43
+        source: pull
+
+    - name: should run another webserver via docker
+      docker_container:
+        name: my_another_webserver
+        image: httpd:2.4.43
+        state: started
+        ports:
+          - "10080:80"

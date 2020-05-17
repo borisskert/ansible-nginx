@@ -1,0 +1,14 @@
+---
+- name: Should have pulled image
+  docker_image:
+    name: nginx:1.17.9-alpine
+    source: pull
+  register: nginx_image
+  failed_when: nginx_image.changed
+
+- name: Should have created volume
+  file:
+    path: /srv/nginx
+    state: directory
+  register: nginx_volume
+  failed_when: nginx_volume.changed

@@ -1,0 +1,13 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Should GET root site
+      get_url:
+        url: http://localhost:8080/
+        dest: /tmp/root.html
+      register: get_request
+      failed_when: get_request.status_code != 200
+        and get_request.md5 != '5388f60d7695cb57b87c799ee62d20b2'

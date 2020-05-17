@@ -1,0 +1,22 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: ansible-nginx
+      volume: /srv/nginx
+      http_port: 8080
+      https_port: 8443
+      clear_dh_parameter: false
+      dh_parameter_bits: 1024
+      ticketkey_enabled: true
+      configs:
+        apache:
+          https: false
+          upstreams:
+            apache: "172.17.0.1:10080"
+          server_name: my.myserver.org
+          locations:
+            - location: /
+              proxy_to: http://apache/
