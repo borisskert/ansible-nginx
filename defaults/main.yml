@@ -8,6 +8,7 @@ https_port: 443
 http_port: 80
 
 configs: {}
+upstreams: {}
 
 volume: ''
 conf_folder: "{{volume}}/conf.d"

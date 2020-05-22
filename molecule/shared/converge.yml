@@ -11,11 +11,11 @@
       clear_dh_parameter: false
       dh_parameter_bits: 1024
       ticketkey_enabled: true
+      upstreams:
+        apache: 172.17.0.1:10080
       configs:
         apache:
           https: false
-          upstreams:
-            apache: "172.17.0.1:10080"
           server_name: my.myserver.org
           locations:
             '/':

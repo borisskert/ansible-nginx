@@ -1,12 +1,18 @@
 ---
-- name: should create apache config file
+- name: should create upstream config file
   copy:
-    dest: /srv/nginx/conf.d/apache.conf
+    dest: /srv/nginx/conf.d/upstreams.conf
     content: |
       upstream apache {
         server 172.17.0.1:10080;
       }
+  register: upstreams_conf_file
+  failed_when: upstreams_conf_file.changed
 
+- name: should create apache config file
+  copy:
+    dest: /srv/nginx/conf.d/apache.conf
+    content: |
       server {
         listen 80;
         listen [::]:80;

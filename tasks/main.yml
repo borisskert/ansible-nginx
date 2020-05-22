@@ -13,6 +13,12 @@
 
 - include: create_dh_parameter.yml
 
+- name: template upstream config
+  template:
+    src: conf.d/upstreams.conf.j2
+    dest: "{{ conf_folder }}/upstreams.conf"
+  notify: Reload nginx
+
 - name: template site config
   template:
     src: conf.d/site.conf.j2

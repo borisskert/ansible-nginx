@@ -1,9 +1,3 @@
-{% for upstream_name, upstream_url in item.value.upstreams.items() %}
-upstream {{upstream_name}} {
-  server {{upstream_url}};
-}
-{% endfor %}
-
 {% if item.value.https %}
 server {
   listen 80;
