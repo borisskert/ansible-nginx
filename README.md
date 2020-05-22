@@ -55,7 +55,7 @@ The site config object is structured as map:
 | upstreams     | site upstream as embedded object | no | <empty object> | defines upstreams |
 | https         | boolean                          | no | false          | defines if this site is accessible secured via https or not |
 | server_name   | text                             | yes |               | defines the site server_name                                |
-| locations     | array of locations               | no  | <empty array> | defines the site locations                                  |
+| locations     | dictionary of locations          | no  | <empty dictionary> | defines the site locations;                            |
 
 #### siteconfig.upstream
 
@@ -68,10 +68,8 @@ The site config object is structured as map:
 
 | Property      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
-| location      | url as text | yes |         | like: /service/       |
-| proxy_to      | absolute url as text | no | <empty> | like: http://harbor_ui/service/ |
-| returns       |                      | no | <empty> | like: 404                       |
-| options       | dictionary (key-value pairs) | no | <empty> | Nginx options to be templated in your location config |
+| key           | url as text | yes |         | example: /service/       |
+| values        | key-value pairs | no | <empty> | nginx location options |
 
 ## Example Playbook
 
@@ -112,27 +110,12 @@ Example with parameters:
           gitlab: "172.17.0.1:10080"
         server_name: git.flandigt.de
         locations:
-        - location: /
-          proxy_to: http://gitlab/
-          options:
-            client_max_body_size: 8192m
-      harbor_ui:
-        https: false
-        upstreams:
-          harbor_ui: "172.17.0.1:50080"
-          harbor_registry: "172.17.0.1:55000"
-        server_name: harbor.flandigt.de
-        locations:
-        - location: /
-          proxy_to: http://harbor_ui/
-        - location: /v1/
-          returns: 404
-        - location: /v2/
-          proxy_to: http://harbor_registry/v2/
-        - location: /service/
-          proxy_to: http://harbor_ui/service/
-        - location: /service/notifications
-          returns: 404
+          '/':
+            proxy_pass: http://apache/
+            include: /etc/nginx/rules/proxy_parameters.conf
+          '~ /.well-known':
+            root: /var/www/html
+            allow: all
 ```
 
 ## Run tests

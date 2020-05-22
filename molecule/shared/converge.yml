@@ -18,5 +18,9 @@
             apache: "172.17.0.1:10080"
           server_name: my.myserver.org
           locations:
-            - location: /
-              proxy_to: http://apache/
+            '/':
+              proxy_pass: http://apache/
+              include: /etc/nginx/rules/proxy_parameters.conf
+            '~ /.well-known':
+              root: /var/www/html
+              allow: all

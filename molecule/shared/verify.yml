@@ -1,4 +1,32 @@
 ---
+- name: should create apache config file
+  copy:
+    dest: /srv/nginx/conf.d/apache.conf
+    content: |
+      upstream apache {
+        server 172.17.0.1:10080;
+      }
+
+      server {
+        listen 80;
+        listen [::]:80;
+
+        server_name my.myserver.org;
+
+        location / {
+          proxy_pass http://apache/;
+          include /etc/nginx/rules/proxy_parameters.conf;
+        }
+
+        location ~ /.well-known {
+          root /var/www/html;
+          allow all;
+        }
+
+      }
+  register: apache_conf_file
+  failed_when: apache_conf_file.changed
+
 - name: Should have pulled image
   docker_image:
     name: nginx:1.17.9-alpine
