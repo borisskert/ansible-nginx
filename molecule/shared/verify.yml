@@ -21,7 +21,7 @@
 
         location / {
           proxy_pass http://apache/;
-          include /etc/nginx/rules/proxy_parameters.conf;
+          include ./rules/proxy_parameters.conf;
         }
 
         location ~ /.well-known {

@@ -105,28 +105,60 @@ Example with parameters:
     dh_parameter_bits: 2048
     configs:
       gitlab:
-        https: false
-        upstreams:
-          gitlab: "172.17.0.1:10080"
-        server_name: git.flandigt.de
+        servers:
+          - listen:
+              - '80'
+              - '[::]:80'
+            server_name: my.myserver.org
+            return: 301 https://$server_name$request_uri
+          - listen:
+              - '443 ssl http2'
+              - '[::]:443 ssl http2'
+            server_name: my.myserver.org
+            ssl_certificate: ./certs/live/{{item.value.server_name}}/fullchain.pem;
+            ssl_certificate_key: ./certs/live/{{item.value.server_name}}/privkey.pem;
+            ssl_trusted_certificate: ./certs/live/{{item.value.server_name}}/chain.pem;
+            include: ./rules/ssl_parameters.conf;
         locations:
           '/':
             proxy_pass: http://apache/
-            include: /etc/nginx/rules/proxy_parameters.conf
+            include: ./rules/proxy_parameters.conf
           '~ /.well-known':
             root: /var/www/html
             allow: all
 ```
 
-## Run tests
+## Testing
 
 Requirements:
 
-* Ansible
-* Vagrant
-* VirtualBox
+* [Vagrant](https://www.vagrantup.com/)
+* [VirtualBox](https://www.virtualbox.org/)
+* [Ansible](https://docs.ansible.com/)
+* [Molecule](https://molecule.readthedocs.io/en/latest/index.html)
+* [yamllint](https://yamllint.readthedocs.io/en/stable/#)
+* [ansible-lint](https://docs.ansible.com/ansible-lint/)
+* [Docker](https://docs.docker.com/)
+
+### Run within docker
 
 ```shell script
-$ cd tests
-$ ./test.sh
+molecule test
 ```
+
+### Run within Vagrant
+
+```shell script
+ molecule test --scenario-name vagrant --parallel
+```
+
+I recommend to use [pyenv](https://github.com/pyenv/pyenv) for local testing.
+Within the Github Actions pipeline I use [my own molecule Docker image](https://github.com/borisskert/docker-molecule).
+
+## License
+
+MIT
+
+## Author Information
+
+* [borisskert](https://github.com/borisskert)

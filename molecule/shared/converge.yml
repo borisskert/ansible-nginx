@@ -15,12 +15,15 @@
         apache: 172.17.0.1:10080
       configs:
         apache:
-          https: false
-          server_name: my.myserver.org
+          servers:
+            - listen:
+                - '80'
+                - '[::]:80'
+              server_name: my.myserver.org
           locations:
             '/':
               proxy_pass: http://apache/
-              include: /etc/nginx/rules/proxy_parameters.conf
+              include: ./rules/proxy_parameters.conf
             '~ /.well-known':
               root: /var/www/html
               allow: all
