@@ -16,22 +16,48 @@
       server {
         listen 80;
         listen [::]:80;
-
-        server_name my.myserver.org;
-
+        server_name my.http.server;
         location / {
           proxy_pass http://apache/;
           include ./rules/proxy_parameters.conf;
         }
-
         location ~ /.well-known {
           root /var/www/html;
           allow all;
         }
-
       }
   register: apache_conf_file
   failed_when: apache_conf_file.changed
+
+- name: should create https config file
+  copy:
+    dest: /srv/nginx/conf.d/https.conf
+    content: |
+      server {
+        listen 80;
+        listen [::]:80;
+        server_name my.https.server;
+        return 301 https://$server_name$request_uri;
+      }
+      server {
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+        server_name my.https.server;
+        ssl_certificate ./certs/live/my.https.server/fullchain.pem;
+        ssl_certificate_key ./certs/live/my.https.server/privkey.pem;
+        ssl_trusted_certificate ./certs/live/my.https.server/chain.pem;
+        include ./rules/ssl_parameters.conf;
+        location / {
+          proxy_pass http://apache/;
+          include ./rules/proxy_parameters.conf;
+        }
+        location ~ /.well-known {
+          root /var/www/html;
+          allow all;
+        }
+      }
+  register: https_conf_file
+  failed_when: https_conf_file.changed
 
 - name: Should have pulled image
   docker_image:

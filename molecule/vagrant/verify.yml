@@ -7,10 +7,19 @@
     - name: Perform verify
       include: ../shared/verify.yml
 
-    - name: Should GET root site
+    - name: Should GET http root site
       get_url:
         url: http://localhost:8080/
         dest: /tmp/root.html
-      register: get_request
-      failed_when: get_request.status_code != 200
-        and get_request.md5 != '5388f60d7695cb57b87c799ee62d20b2'
+      register: get_http_request
+      failed_when: get_http_request.status_code != 200
+        and get_http_request.md5 != '5388f60d7695cb57b87c799ee62d20b2'
+
+    - name: Should GET https root site
+      get_url:
+        url: https://localhost:8443/
+        dest: /tmp/https_root.html
+        validate_certs: false
+      register: get_https_request
+      failed_when: get_https_request.status_code != 200
+        and get_https_request.md5 != '5388f60d7695cb57b87c799ee62d20b2'

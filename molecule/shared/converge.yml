@@ -16,14 +16,39 @@
       configs:
         apache:
           servers:
-            - listen:
-                - '80'
-                - '[::]:80'
-              server_name: my.myserver.org
-          locations:
-            '/':
-              proxy_pass: http://apache/
-              include: ./rules/proxy_parameters.conf
-            '~ /.well-known':
-              root: /var/www/html
-              allow: all
+            - options:
+                listen:
+                  - '80'
+                  - '[::]:80'
+                server_name: my.http.server
+              locations:
+                '/':
+                  proxy_pass: http://apache/
+                  include: ./rules/proxy_parameters.conf
+                '~ /.well-known':
+                  root: /var/www/html
+                  allow: all
+        https:
+          servers:
+            - options:
+                listen:
+                  - '80'
+                  - '[::]:80'
+                server_name: my.https.server
+                return: 301 https://$server_name$request_uri
+            - options:
+                listen:
+                  - '443 ssl http2'
+                  - '[::]:443 ssl http2'
+                server_name: my.https.server
+                ssl_certificate: ./certs/live/my.https.server/fullchain.pem
+                ssl_certificate_key: ./certs/live/my.https.server/privkey.pem
+                ssl_trusted_certificate: ./certs/live/my.https.server/chain.pem
+                include: ./rules/ssl_parameters.conf
+              locations:
+                '/':
+                  proxy_pass: http://apache/
+                  include: ./rules/proxy_parameters.conf
+                '~ /.well-known':
+                  root: /var/www/html
+                  allow: all

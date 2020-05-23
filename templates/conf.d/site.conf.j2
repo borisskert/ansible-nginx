@@ -1,17 +1,18 @@
 {% for server in item.value.servers %}
 server {
-{% for key, value in server.items() %}
+{% if server.options is defined %}
+{% for key, value in server.options.items() %}
 {% if value | length == value | string | length %}
   {{ key }} {{ value }};
 {% else %}
 {% for value_entry in value %}
   {{ key }} {{ value_entry }};
 {% endfor %}
-
 {% endif %}
 {% endfor %}
-
-{% for location_key, location_value in item.value.locations.items() %}
+{% endif %}
+{% if server.locations is defined %}
+{% for location_key, location_value in server.locations.items() %}
   location {{location_key}} {
 {% if location_value is defined %}
 {% for key, value in location_value.items() %}
@@ -19,7 +20,7 @@ server {
 {% endfor %}
 {% endif %}
   }
-
 {% endfor %}
+{% endif %}
 }
 {% endfor %}

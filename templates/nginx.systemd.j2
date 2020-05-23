@@ -9,6 +9,9 @@ Requires=docker.service
 [Service]
 ExecStartPre=-/usr/bin/docker rm -f {{docker_container.name}}
 ExecStartPre=/usr/bin/docker pull {{image_name}}:{{image_version}}
+{% if ticketkey_enabled is defined and ticketkey_enabled | bool %}
+ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > {{ticketkey_file_path}}"
+{% endif %}
 
 ExecStart=/usr/bin/docker run --name {{docker_container.name}} \
 {% if conf_folder != "" %}

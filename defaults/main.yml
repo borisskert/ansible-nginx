@@ -7,7 +7,7 @@ service_name: nginx
 https_port: 443
 http_port: 80
 
-configs: {}
+configs: []
 upstreams: {}
 
 volume: ''

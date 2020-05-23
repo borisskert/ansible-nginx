@@ -2,9 +2,16 @@
 
 Installs nginx as docker systemd service.
 
+## Supported operating systems
+
+* Ubuntu 16.04
+* Ubuntu 18.04
+* Ubuntu 20.04
+* Debian 9
+* Debian 10
+
 ## System requirements
 
-* Ubuntu 16.04 or 18.04
 * Python 3
 * Systemd
 * Docker
@@ -43,33 +50,38 @@ Installs nginx as docker systemd service.
 | clear_dh_parameter            | boolean      | no | false                        |  |
 | dh_parameter_bits             | integer number | no | 4096                       |  |
 | ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
-| configs                       | site config as embedded object | no | <empty object> |  |
+| upstreams                     | dictionary of `upstream` | no | <empty object>   | Defines all nginx upstreams |
+| configs                       | dictionary of `site`     | no | <empty object>   | Defines all nginx sites |
 
-### mainconfig.config
+### Definition of `site`
 
 The site config object is structured as map:
  the key represents the config name, the value is an embedded object with following structure:
 
 | Property      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
-| upstreams     | site upstream as embedded object | no | <empty object> | defines upstreams |
-| https         | boolean                          | no | false          | defines if this site is accessible secured via https or not |
-| server_name   | text                             | yes |               | defines the site server_name                                |
-| locations     | dictionary of locations          | no  | <empty dictionary> | defines the site locations;                            |
+| servers       | dictionary of `server` | no | <empty object> | Defines the server configs for this `site` |
 
-#### siteconfig.upstream
+### Definition of `upstream`
 
 | Property      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
-| upstream_name | text | yes |  | the unique name of the corresponding upstream |
-| upstream_url  | url as text | yes |  |  |
+| key           | text | yes |  | The upstream name |
+| value         | text | yes |  | The upstream value |
 
-#### siteconfig.location
+### Definition of `server`
 
 | Property      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
-| key           | url as text | yes |         | example: /service/       |
-| values        | key-value pairs | no | <empty> | nginx location options |
+| options       | multi-value dictionary of values | yes |         | Defines the options for this `server`       |
+| locations     | dictionary of `location`         | no  | <empty> | Defines the locations for this `server` |
+
+### Definition of `location`
+
+| Property      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| key           | url  | yes |                | The location as url   |
+| values        | dictionary | no   | <empty> | The options for this `location` |
 
 ## Example Playbook
 
@@ -103,29 +115,48 @@ Example with parameters:
     http_port: 80
     ticketkey_enabled: yes
     dh_parameter_bits: 2048
+    upstreams:
+      apache: 172.17.0.1:8080
+      gitlab: 172.17.0.1:10081
     configs:
+      apache:
+        servers:
+          - options:
+              listen:
+                - '80'
+                - '[::]:80'
+            server_name: my.http.server
+            locations:
+              '/':
+                proxy_pass: http://apache/
+                include: ./rules/proxy_parameters.conf
+              '~ /.well-known':
+                root: /var/www/html
+                allow: all
       gitlab:
         servers:
-          - listen:
-              - '80'
-              - '[::]:80'
-            server_name: my.myserver.org
+          - options:
+              listen:
+                - '80'
+                - '[::]:80'
+            server_name: my.gitlab.server
             return: 301 https://$server_name$request_uri
-          - listen:
-              - '443 ssl http2'
-              - '[::]:443 ssl http2'
-            server_name: my.myserver.org
-            ssl_certificate: ./certs/live/{{item.value.server_name}}/fullchain.pem;
-            ssl_certificate_key: ./certs/live/{{item.value.server_name}}/privkey.pem;
-            ssl_trusted_certificate: ./certs/live/{{item.value.server_name}}/chain.pem;
-            include: ./rules/ssl_parameters.conf;
-        locations:
-          '/':
-            proxy_pass: http://apache/
-            include: ./rules/proxy_parameters.conf
-          '~ /.well-known':
-            root: /var/www/html
-            allow: all
+          - options:
+              listen:
+                - '443 ssl http2'
+                - '[::]:443 ssl http2'
+              server_name: my.gitlab.server
+              ssl_certificate: ./certs/live/my.gitlab.server/fullchain.pem
+              ssl_certificate_key: ./certs/live/my.gitlab.server/privkey.pem
+              ssl_trusted_certificate: ./certs/live/my.gitlab.server/chain.pem
+              include: ./rules/ssl_parameters.conf
+            locations:
+              '/':
+                proxy_pass: http://gitlab/
+                include: ./rules/proxy_parameters.conf
+              '~ /.well-known':
+                root: /var/www/html
+                allow: all
 ```
 
 ## Testing

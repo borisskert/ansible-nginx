@@ -9,6 +9,13 @@
       cleanup_enabled: false
       install_pip_docker: true
 
+    - role: create-self-signed-certs
+      ca_name: "{{ nginx_ca_name }}"
+      working_directory: /srv/openssl
+      certificates_directory: /srv/nginx/certs/live
+      sites:
+        - my.https.server
+
   post_tasks:
     - name: should pull apache's docker image
       docker_image:

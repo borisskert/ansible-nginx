@@ -66,6 +66,17 @@ provisioner:
         molecule_docker_environment: true
       debian:
         ansible_python_interpreter: /usr/bin/python3
+    host_vars:
+      ansible-nginx-stretch:
+        nginx_ca_name: ansible-nginx-stretch
+      ansible-nginx-buster:
+        nginx_ca_name: ansible-nginx-buster
+      ansible-nginx-focal:
+        nginx_ca_name: ansible-nginx-focal
+      ansible-nginx-bionic:
+        nginx_ca_name: ansible-nginx-bionic
+      ansible-nginx-xenial:
+        nginx_ca_name: ansible-nginx-xenial
 
 verifier:
   name: ansible

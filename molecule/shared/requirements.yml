@@ -2,3 +2,7 @@
 - name: install-docker
   src: https://github.com/borisskert/ansible-docker.git
   scm: git
+
+- name: create-self-signed-certs
+  src: https://github.com/borisskert/ansible-openssl-self-signed-certs.git
+  scm: git

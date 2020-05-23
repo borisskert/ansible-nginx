@@ -18,19 +18,32 @@ platforms:
     box: ubuntu/focal64
   - name: ansible-nginx-stretch
     box: debian/stretch64
+    groups:
+      - debian
   - name: ansible-nginx-buster
     box: debian/buster64
+    groups:
+      - debian
 
 provisioner:
   name: ansible
   playbooks:
     converge: ../shared/converge.yml
   inventory:
+    group_vars:
+      debian:
+        ansible_python_interpreter: /usr/bin/python3
     host_vars:
       ansible-nginx-stretch:
-        ansible_python_interpreter: /usr/bin/python3
+        nginx_ca_name: ansible-nginx-stretch
       ansible-nginx-buster:
-        ansible_python_interpreter: /usr/bin/python3
+        nginx_ca_name: ansible-nginx-buster
+      ansible-nginx-focal:
+        nginx_ca_name: ansible-nginx-focal
+      ansible-nginx-bionic:
+        nginx_ca_name: ansible-nginx-bionic
+      ansible-nginx-xenial:
+        nginx_ca_name: ansible-nginx-xenial
 
 verifier:
   name: ansible
