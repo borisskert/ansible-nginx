@@ -1,12 +1,7 @@
 ---
-- name: template ssl rules
+- name: template rules config
   template:
-    src: rules/ssl_parameters.conf.j2
-    dest: "{{ rules_folder }}/{{ ssl_parameters_file }}"
-  notify: Reload nginx
-
-- name: template reverse proxy rules
-  template:
-    src: rules/proxy_parameters.conf.j2
-    dest: "{{ rules_folder }}/{{ proxy_parameters_file }}"
+    src: conf.d/rules.conf.j2
+    dest: "{{ rules_folder }}/{{ item.key }}.conf"
+  with_dict: "{{ rules }}"
   notify: Reload nginx

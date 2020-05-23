@@ -52,6 +52,7 @@ Installs nginx as docker systemd service.
 | ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
 | upstreams                     | dictionary of `upstream` | no | <empty object>   | Defines all nginx upstreams |
 | configs                       | dictionary of `site`     | no | <empty object>   | Defines all nginx sites |
+| rules                         | dictionary of `rule`     | no | <empty object>   | Defines all reusable nginx rules |
 
 ### Definition of `site`
 
@@ -82,6 +83,13 @@ The site config object is structured as map:
 |---------------|------|------------|---------|-----------------------|
 | key           | url  | yes |                | The location as url   |
 | values        | dictionary | no   | <empty> | The options for this `location` |
+
+### Definition of `rule`
+
+| Property      | Type | Mandatory? | Default | Description           |
+|---------------|------|------------|---------|-----------------------|
+| key           | text | yes        |         | The name of the rules file |
+| values        | multi-value dictionary of values | yes | | The nginx rules |
 
 ## Example Playbook
 
@@ -118,6 +126,34 @@ Example with parameters:
     upstreams:
       apache: 172.17.0.1:8080
       gitlab: 172.17.0.1:10081
+    rules:
+      ssl:
+        ssl_protocols: TLSv1.3 TLSv1.2
+        ssl_ciphers: "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:\
+          EECDH+ECDSA+SHA512:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:\
+          ECDH+AESGCM:ECDH+AES256:DH+AESGCM:DH+AES256:RSA+AESGCM:\
+          !aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS"
+        ssl_prefer_server_ciphers: 'on'
+        ssl_dhparam: ./ssl/{{ dh_parameter_filename }}
+        ssl_ecdh_curve: secp384r1
+        add_header: "Strict-Transport-Security 'max-age=31536000; \
+          includeSubDomains; preload' always"
+        ssl_stapling: 'on'
+        ssl_stapling_verify: 'on'
+        ssl_session_cache: shared:TLS:2m
+        ssl_buffer_size: 4k
+        ssl_session_timeout: 10m
+        ssl_session_tickets: 'on'
+        ssl_session_ticket_key: ./ssl/{{ ticketkey_filename }}
+      proxy:
+        proxy_set_header:
+          - Host $http_host
+          - X-Real-IP $remote_addr
+          - X-Forwarded-For $proxy_add_x_forwarded_for
+          - X-Forwarded-Proto $scheme
+        proxy_cookie_path: '/ "/; secure"'
+        proxy_buffering: 'off'
+        proxy_request_buffering: 'off'
     configs:
       apache:
         servers:
@@ -129,7 +165,7 @@ Example with parameters:
             locations:
               '/':
                 proxy_pass: http://apache/
-                include: ./rules/proxy_parameters.conf
+                include: ./rules/proxy.conf
               '~ /.well-known':
                 root: /var/www/html
                 allow: all
@@ -149,11 +185,11 @@ Example with parameters:
               ssl_certificate: ./certs/live/my.gitlab.server/fullchain.pem
               ssl_certificate_key: ./certs/live/my.gitlab.server/privkey.pem
               ssl_trusted_certificate: ./certs/live/my.gitlab.server/chain.pem
-              include: ./rules/ssl_parameters.conf
+              include: ./rules/ssl.conf
             locations:
               '/':
                 proxy_pass: http://gitlab/
-                include: ./rules/proxy_parameters.conf
+                include: ./rules/proxy.conf
               '~ /.well-known':
                 root: /var/www/html
                 allow: all

@@ -1,0 +1,9 @@
+{% for key, value in item.value.items() %}
+{% if value | length == value | string | length %}
+{{ key }} {{ value }};
+{% else %}
+{% for value_entry in value %}
+{{ key }} {{ value_entry }};
+{% endfor %}
+{% endif %}
+{% endfor %}

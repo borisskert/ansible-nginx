@@ -9,6 +9,7 @@ http_port: 80
 
 configs: []
 upstreams: {}
+rules: {}
 
 volume: ''
 conf_folder: "{{volume}}/conf.d"
