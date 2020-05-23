@@ -19,12 +19,8 @@
     dest: "{{ conf_folder }}/upstreams.conf"
   notify: Reload nginx
 
-- name: template site config
-  template:
-    src: conf.d/site.conf.j2
-    dest: "{{ conf_folder }}/{{ item.key }}.conf"
-  with_dict: "{{ configs }}"
-  notify: Reload nginx
+- name: template site configs
+  include: setup-site-configs.yml
 
 - name: Create systemd unit file
   template:

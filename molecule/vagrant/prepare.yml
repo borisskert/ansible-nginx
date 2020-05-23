@@ -17,6 +17,9 @@
         - my.https.server
 
   post_tasks:
+    - name: Perform prepare
+      include: ../shared/prepare.yml
+
     - name: should pull apache's docker image
       docker_image:
         name: httpd:2.4.43

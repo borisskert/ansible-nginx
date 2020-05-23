@@ -1,4 +1,16 @@
 ---
+- name: should remove dummy site config
+  stat:
+    path: /srv/nginx/conf.d/dummy.conf
+  register: dummy_site_config
+  failed_when: dummy_site_config.stat.exists
+
+- name: should remove dummy rules config
+  stat:
+    path: /srv/nginx/rules/dummy.conf
+  register: dummy_rules_config
+  failed_when: dummy_rules_config.stat.exists
+
 - name: should create upstream config file
   copy:
     dest: /srv/nginx/conf.d/upstreams.conf

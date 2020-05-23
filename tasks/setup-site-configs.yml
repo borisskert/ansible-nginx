@@ -1,7 +1,7 @@
 ---
-- name: search for existing rule config files
+- name: search for existing site config files
   find:
-    paths: "{{ rules_folder }}"
+    paths: "{{ conf_folder }}"
     patterns: '*.conf'
   register: existing_files
 
@@ -9,12 +9,16 @@
   set_fact:
     intended_file_paths: >
       {{
-      lookup('dict', rules)
+      lookup('dict', configs)
       | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', '{{ rules_folder }}/\1.conf')
+      | map('regex_replace', '^(.*)$', '{{ conf_folder }}/\1.conf')
       | list
+      + ['{{ conf_folder }}/upstreams.conf']
       }}
+
+- debug:
+    var: intended_file_paths
 
 - name: determine site config files to be removed
   set_fact:
@@ -34,9 +38,9 @@
   loop: "{{ files_to_remove_paths }}"
   notify: Reload nginx
 
-- name: template rules config
+- name: template site config
   template:
-    src: conf.d/rules.conf.j2
-    dest: "{{ rules_folder }}/{{ item.key }}.conf"
-  with_dict: "{{ rules }}"
+    src: conf.d/site.conf.j2
+    dest: "{{ conf_folder }}/{{ item.key }}.conf"
+  with_dict: "{{ configs }}"
   notify: Reload nginx

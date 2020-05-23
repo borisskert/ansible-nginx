@@ -3,6 +3,10 @@
   hosts: all
   become: true
 
+  post_tasks:
+    - name: Perform prepare
+      include: ../shared/prepare.yml
+
   roles:
     - role: install-docker
       storage_driver: overlay2
