@@ -76,6 +76,7 @@ The site config object is structured as map:
 |---------------|------|------------|---------|-----------------------|
 | options       | multi-value dictionary of values | yes |         | Defines the options for this `server`       |
 | locations     | dictionary of `location`         | no  | <empty> | Defines the locations for this `server` |
+| disabled      | boolean                          | no  |         | Disable this `server` setting |
 
 ### Definition of `location`
 

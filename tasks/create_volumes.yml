@@ -37,7 +37,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0750
+    mode: 0755
 
 - name: create letsencrypt well-known directory
   file:
@@ -45,7 +45,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0750
+    mode: 0755
 
 - name: create log directory
   file:

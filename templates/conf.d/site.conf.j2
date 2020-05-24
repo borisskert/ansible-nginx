@@ -1,4 +1,5 @@
 {% for server in item.value.servers %}
+{% if not server.disabled is defined or not server.disabled | bool %}
 server {
 {% if server.options is defined %}
 {% for key, value in server.options.items() %}
@@ -23,4 +24,5 @@ server {
 {% endfor %}
 {% endif %}
 }
+{% endif %}
 {% endfor %}
