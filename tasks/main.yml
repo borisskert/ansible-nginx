@@ -1,11 +1,22 @@
 ---
 - include: check-parameters.yml
 
+- name: Create systemd unit file
+  template:
+    src: nginx.systemd.j2
+    dest: "/etc/systemd/system/{{ systemd_service_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Enable nginx service
+    - Restart nginx service
+
 - name: pull image
   docker_image:
     name: "{{ image_name }}:{{ image_version }}"
     source: pull
-  notify: Restart nginx
+  notify: Restart nginx service
 
 - include: create_volumes.yml
 
@@ -22,17 +33,6 @@
 - name: template site configs
   include: setup-site-configs.yml
 
-- name: Create systemd unit file
-  template:
-    src: nginx.systemd.j2
-    dest: "/etc/systemd/system/{{ systemd_service_name }}.service"
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - Reload systemd
-    - Restart nginx
-
 - name: Create reloader service
   template:
     src: nginx.reload.systemd.j2
@@ -40,7 +40,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: Reload systemd
+  notify: Enable nginx reload service
 
 - name: Setup logrotate config
   template:
@@ -49,17 +49,15 @@
 
 - include: setup-ticketkey.yml
 
-- name: Enable nginx service
-  service:
+- name: Start/Restart systemd services
+  meta: flush_handlers
+
+- name: Enable nginx service (if not started)
+  systemd:
     name: "{{ service_name }}"
     enabled: true
+    state: started
   when: not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
     )
-  register: service_state
-  changed_when: service_state.status.SubState != 'running'
-  notify: Start nginx
-
-- name: Flush handlers
-  meta: flush_handlers

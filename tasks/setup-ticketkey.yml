@@ -11,16 +11,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: Reload systemd
-
-- name: Enable ticketkey renew service
-  systemd:
-    name: "{{ ticketkey_renew_service_name }}.service"
-    enabled: true
-  when: not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
-    )
+  notify: Enable ticketkey renew service
 
 - name: Create ticketkey renew timer
   template:
@@ -29,26 +20,5 @@
     owner: root
     group: root
     mode: 0644
-  notify: Reload systemd
-
-- name: Enable ticketkey renew service timer
-  systemd:
-    name: "{{ ticketkey_renew_service_name }}.timer"
-    enabled: true
-  when: ticketkey_enabled is defined
-    and (ticketkey_enabled | bool)
-    and not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
-    )
-  notify: Start ticketkey renew service timer
-
-- name: Disable ticketkey renew service timer
-  systemd:
-    name: "{{ ticketkey_renew_service_name }}.timer"
-    enabled: false
-  when: not (
-    ticketkey_enabled is defined
-    and (ticketkey_enabled | bool)
-    )
-  notify: Stop ticketkey renew service timer
+  notify:
+    - Reload ticketkey renew service timer

@@ -1,52 +1,67 @@
 ---
-- name: Reload systemd
+- name: Enable ticketkey renew service
   systemd:
-    daemon_reload: true
+    name: "{{ ticketkey_renew_service_name }}.service"
+    enabled: true
   when: not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
     )
 
-- name: Start nginx
-  service:
+- name: Reload ticketkey renew service timer
+  systemd:
+    name: "{{ ticketkey_renew_service_name }}.timer"
+    enabled: "{{ ticketkey_enabled is defined
+      and ticketkey_enabled | bool }}"
+    state: "{{ 'started' if (
+      ticketkey_enabled is defined
+      and ticketkey_enabled | bool
+      ) else 'stopped' }}"
+  when: not (
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
+    )
+
+- name: Enable nginx service
+  systemd:
     name: "{{ service_name }}"
-    state: started
-  register: nginx_start
+    enabled: true
+    daemon_reload: true
+  when: not (
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
+    )
 
-- name: Start ticketkey renew service timer
+- name: Restart nginx service
   systemd:
-    name: "{{ ticketkey_renew_service_name }}.timer"
-    state: started
-
-- name: Stop ticketkey renew service timer
-  systemd:
-    name: "{{ ticketkey_renew_service_name }}.timer"
-    state: stopped
-
-- name: Restart nginx
-  service:
     name: "{{ service_name }}"
     state: restarted
+    daemon_reload: true
   register: nginx_restart
   when: not (
-      nginx_start is defined
-      and nginx_start.changed
-    ) and not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
+    )
+
+- name: Enable nginx reload service
+  systemd:
+    name: "{{ reload_service_name }}"
+    enabled: true
+    daemon_reload: true
+  when: not (
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
     )
 
 - name: Reload nginx
-  service:
+  systemd:
     name: "{{ reload_service_name }}"
     state: started
+    daemon_reload: true
   when: not (
-      nginx_restart is defined
-      and nginx_restart.changed
+    nginx_restart is defined
+    and nginx_restart.changed
     ) and not (
-      nginx_start is defined
-      and nginx_start.changed
-    ) and not (
-      molecule_docker_environment is defined
-      and molecule_docker_environment | bool
+    molecule_docker_environment is defined
+    and molecule_docker_environment | bool
     )
