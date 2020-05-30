@@ -130,7 +130,7 @@
 
 - name: Should have pulled image
   docker_image:
-    name: nginx:1.17.9-alpine
+    name: nginx:1.17.10-alpine
     source: pull
   register: nginx_image
   failed_when: nginx_image.changed

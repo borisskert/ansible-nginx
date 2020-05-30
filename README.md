@@ -35,24 +35,24 @@ Installs nginx as docker systemd service.
 
 | Variable      | Type | Mandatory? | Default | Description           |
 |---------------|------|------------|---------|-----------------------|
-| image_name    | text | no         | nginx   | Docker image name     |
-| image_version | text | no         | 1.17.9-alpine | Docker image version |
-| https_port    | port as number | no | 443         | Your webserver's https listening port |
-| http_port     | port as number | no | 80          | Your webserver's http listening port |
-| volume        | path as text   | yes | <empty>    | The location your server will store its files |
-| conf_folder   | path as text   | no | {{volume}}/conf.d |  |
-| rules_folder  | path as text   | no | {{volume}}/rules  |  |
-| certs_folder  | path as text   | no | {{volume}}/certs  |  |
-| ssl_folder    | path as text   | no | {{volume}}/ssl    |  |
-| www_folder    | path as text   | no | {{volume}}/www    |  |
-| log_folder    | path as text   | no | /var/log/nginx    |  |
-| script_folder                 | path as text | no | /opt/nginx                   |  |
-| clear_dh_parameter            | boolean      | no | false                        |  |
-| dh_parameter_bits             | integer number | no | 4096                       |  |
-| ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
-| upstreams                     | dictionary of `upstream` | no | <empty object>   | Defines all nginx upstreams |
-| configs                       | dictionary of `site`     | no | <empty object>   | Defines all nginx sites |
-| rules                         | dictionary of `rule`     | no | <empty object>   | Defines all reusable nginx rules |
+| nginx_image_name    | text | no         | nginx   | Docker image name     |
+| nginx_image_version | text | no         | 1.17.9-alpine | Docker image version |
+| nginx_https_port    | port as number | no | 443         | Your webserver's https listening port |
+| nginx_http_port     | port as number | no | 80          | Your webserver's http listening port |
+| nginx_volume        | path as text   | yes | <empty>    | The location your server will store its files |
+| nginx_conf_folder   | path as text   | no | {{nginx_volume}}/conf.d |  |
+| nginx_rules_folder  | path as text   | no | {{nginx_volume}}/rules  |  |
+| nginx_certs_folder  | path as text   | no | {{nginx_volume}}/certs  |  |
+| nginx_ssl_folder    | path as text   | no | {{nginx_volume}}/ssl    |  |
+| nginx_www_folder    | path as text   | no | {{nginx_volume}}/www    |  |
+| nginx_log_folder    | path as text   | no | /var/log/nginx    |  |
+| nginx_script_folder                 | path as text | no | /opt/nginx                   |  |
+| nginx_clear_dh_parameter            | boolean      | no | false                        |  |
+| nginx_dh_parameter_bits             | integer number | no | 4096                       |  |
+| nginx_ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
+| nginx_upstreams                     | dictionary of `upstream` | no | <empty object>   | Defines all nginx upstreams |
+| nginx_configs                       | dictionary of `site`     | no | <empty object>   | Defines all nginx sites |
+| nginx_rules                         | dictionary of `rule`     | no | <empty object>   | Defines all reusable nginx rules |
 
 ### Definition of `site`
 
@@ -108,7 +108,7 @@ Minimal playbook:
     - hosts: servers
       roles:
       - role: install-nginx
-        volume: /srv/nginx
+        nginx_volume: /srv/nginx
 ```
 
 Example with parameters:
@@ -117,17 +117,17 @@ Example with parameters:
 - hosts: servers
   roles:
   - role: install-nginx
-    volume: /srv/nginx
-    certs_folder: /srv/letsencrypt/config/live
-    logs_folder: /var/log/nginx
-    https_port: 443
-    http_port: 80
-    ticketkey_enabled: yes
-    dh_parameter_bits: 2048
-    upstreams:
+    nginx_volume: /srv/nginx
+    nginx_certs_folder: /srv/letsencrypt/config/live
+    nginx_log_folder: /var/log/nginx
+    nginx_https_port: 443
+    nginx_http_port: 80
+    nginx_ticketkey_enabled: yes
+    nginx_dh_parameter_bits: 2048
+    nginx_upstreams:
       apache: 172.17.0.1:8080
       gitlab: 172.17.0.1:10081
-    rules:
+    nginx_rules:
       ssl:
         ssl_protocols: TLSv1.3 TLSv1.2
         ssl_ciphers: "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:\
@@ -135,7 +135,7 @@ Example with parameters:
           ECDH+AESGCM:ECDH+AES256:DH+AESGCM:DH+AES256:RSA+AESGCM:\
           !aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS"
         ssl_prefer_server_ciphers: 'on'
-        ssl_dhparam: ./ssl/{{ dh_parameter_filename }}
+        ssl_dhparam: ./ssl/{{ nginx_dh_parameter_filename }}
         ssl_ecdh_curve: secp384r1
         add_header: "Strict-Transport-Security 'max-age=31536000; \
           includeSubDomains; preload' always"
@@ -145,7 +145,7 @@ Example with parameters:
         ssl_buffer_size: 4k
         ssl_session_timeout: 10m
         ssl_session_tickets: 'on'
-        ssl_session_ticket_key: ./ssl/{{ ticketkey_filename }}
+        ssl_session_ticket_key: ./ssl/{{ nginx_ticketkey_filename }}
       proxy:
         proxy_set_header:
           - Host $http_host
@@ -155,7 +155,7 @@ Example with parameters:
         proxy_cookie_path: '/ "/; secure"'
         proxy_buffering: 'off'
         proxy_request_buffering: 'off'
-    configs:
+    nginx_configs:
       apache:
         servers:
           - options:

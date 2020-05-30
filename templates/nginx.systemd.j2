@@ -7,40 +7,40 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-ExecStartPre=-/usr/bin/docker rm -f {{docker_container.name}}
-ExecStartPre=/usr/bin/docker pull {{image_name}}:{{image_version}}
-{% if ticketkey_enabled is defined and ticketkey_enabled | bool %}
-ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > {{ticketkey_file_path}}"
+ExecStartPre=-/usr/bin/docker rm -f {{nginx_docker_container_name}}
+ExecStartPre=/usr/bin/docker pull {{nginx_image_name}}:{{nginx_image_version}}
+{% if nginx_ticketkey_enabled is defined and nginx_ticketkey_enabled | bool %}
+ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > {{nginx_ticketkey_file_path}}"
 {% endif %}
 
-ExecStart=/usr/bin/docker run --name {{docker_container.name}} \
-{% if conf_folder != "" %}
-            --volume {{conf_folder}}:/etc/nginx/conf.d \
+ExecStart=/usr/bin/docker run --name {{nginx_docker_container_name}} \
+{% if nginx_conf_folder is defined and nginx_conf_folder | length > 0 %}
+            --volume {{nginx_conf_folder}}:/etc/nginx/conf.d \
 {% endif %}
-{% if rules_folder != "" %}
-            --volume {{rules_folder}}:/etc/nginx/rules \
+{% if nginx_rules_folder is defined and nginx_rules_folder | length > 0 %}
+            --volume {{nginx_rules_folder}}:/etc/nginx/rules \
 {% endif %}
-{% if certs_folder != "" %}
-            --volume {{certs_folder}}:/etc/nginx/certs \
+{% if nginx_certs_folder is defined and nginx_certs_folder | length > 0 %}
+            --volume {{nginx_certs_folder}}:/etc/nginx/certs \
 {% endif %}
-{% if ssl_folder != "" %}
-            --volume {{ssl_folder}}:/etc/nginx/ssl \
+{% if nginx_ssl_folder is defined and nginx_ssl_folder | length > 0 %}
+            --volume {{nginx_ssl_folder}}:/etc/nginx/ssl \
 {% endif %}
-{% if www_folder != "" %}
-            --volume {{www_folder}}:/var/www/html \
+{% if nginx_www_folder is defined and nginx_www_folder | length > 0 %}
+            --volume {{nginx_www_folder}}:/var/www/html \
 {% endif %}
-{% if log_folder != "" %}
-            --volume {{log_folder}}:/var/log/nginx \
+{% if nginx_log_folder is defined and nginx_log_folder | length > 0 %}
+            --volume {{nginx_log_folder}}:/var/log/nginx \
 {% endif %}
-{% if https_port != "" %}
-            --publish {{https_port}}:443 \
+{% if nginx_https_port is defined and nginx_https_port > 0 %}
+            --publish {{nginx_https_port}}:443 \
 {% endif %}
-{% if http_port != "" %}
-            --publish {{http_port}}:80 \
+{% if nginx_http_port is defined and nginx_http_port > 0 %}
+            --publish {{nginx_http_port}}:80 \
 {% endif %}
-            {{image_name}}:{{image_version}}
-ExecStop=-/usr/bin/docker stop {{docker_container.name}}
-ExecStopPost=-/usr/bin/docker rm -f {{docker_container.name}}
+            {{nginx_image_name}}:{{nginx_image_version}}
+ExecStop=-/usr/bin/docker stop {{nginx_docker_container_name}}
+ExecStopPost=-/usr/bin/docker rm -f {{nginx_docker_container_name}}
 
 Restart=always
 RestartSec=60s

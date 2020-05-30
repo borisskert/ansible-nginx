@@ -1,7 +1,7 @@
 ---
 - name: search for existing site config files
   find:
-    paths: "{{ conf_folder }}"
+    paths: "{{ nginx_conf_folder }}"
     patterns: '*.conf'
   register: existing_files
 
@@ -9,12 +9,12 @@
   set_fact:
     intended_file_paths: >
       {{
-      lookup('dict', configs)
+      lookup('dict', nginx_configs)
       | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', '{{ conf_folder }}/\1.conf')
+      | map('regex_replace', '^(.*)$', '{{ nginx_conf_folder }}/\1.conf')
       | list
-      + ['{{ conf_folder }}/upstreams.conf']
+      + ['{{ nginx_conf_folder }}/upstreams.conf']
       }}
 
 - debug:
@@ -41,6 +41,6 @@
 - name: template site config
   template:
     src: conf.d/site.conf.j2
-    dest: "{{ conf_folder }}/{{ item.key }}.conf"
-  with_dict: "{{ configs }}"
+    dest: "{{ nginx_conf_folder }}/{{ item.key }}.conf"
+  with_dict: "{{ nginx_configs }}"
   notify: Reload nginx

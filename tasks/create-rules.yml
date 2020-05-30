@@ -1,7 +1,7 @@
 ---
 - name: search for existing rule config files
   find:
-    paths: "{{ rules_folder }}"
+    paths: "{{ nginx_rules_folder }}"
     patterns: '*.conf'
   register: existing_files
 
@@ -9,10 +9,10 @@
   set_fact:
     intended_file_paths: >
       {{
-      lookup('dict', rules)
+      lookup('dict', nginx_rules)
       | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', '{{ rules_folder }}/\1.conf')
+      | map('regex_replace', '^(.*)$', '{{ nginx_rules_folder }}/\1.conf')
       | list
       }}
 
@@ -37,6 +37,6 @@
 - name: template rules config
   template:
     src: conf.d/rules.conf.j2
-    dest: "{{ rules_folder }}/{{ item.key }}.conf"
-  with_dict: "{{ rules }}"
+    dest: "{{ nginx_rules_folder }}/{{ item.key }}.conf"
+  with_dict: "{{ nginx_rules }}"
   notify: Reload nginx

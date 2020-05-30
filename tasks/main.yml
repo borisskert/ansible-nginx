@@ -4,7 +4,7 @@
 - name: Create systemd unit file
   template:
     src: nginx.systemd.j2
-    dest: "/etc/systemd/system/{{ systemd_service_name }}.service"
+    dest: "/etc/systemd/system/{{ nginx_service_name }}.service"
     owner: root
     group: root
     mode: 0644
@@ -14,7 +14,7 @@
 
 - name: pull image
   docker_image:
-    name: "{{ image_name }}:{{ image_version }}"
+    name: "{{ nginx_image_name }}:{{ nginx_image_version }}"
     source: pull
   notify: Restart nginx service
 
@@ -27,7 +27,7 @@
 - name: template upstream config
   template:
     src: conf.d/upstreams.conf.j2
-    dest: "{{ conf_folder }}/upstreams.conf"
+    dest: "{{ nginx_conf_folder }}/upstreams.conf"
   notify: Reload nginx
 
 - name: template site configs
@@ -36,7 +36,7 @@
 - name: Create reloader service
   template:
     src: nginx.reload.systemd.j2
-    dest: "/etc/systemd/system/{{ reload_service_name }}.service"
+    dest: "/etc/systemd/system/{{ nginx_reload_service_name }}.service"
     owner: root
     group: root
     mode: 0644
@@ -45,7 +45,7 @@
 - name: Setup logrotate config
   template:
     src: logrotate.j2
-    dest: "{{ logrotate_config }}"
+    dest: "{{ nginx_logrotate_config }}"
 
 - include: setup-ticketkey.yml
 
@@ -54,7 +54,7 @@
 
 - name: Enable nginx service (if not started)
   systemd:
-    name: "{{ service_name }}"
+    name: "{{ nginx_service_name }}"
     enabled: true
     state: started
   when: not (

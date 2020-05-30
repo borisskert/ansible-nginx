@@ -5,13 +5,14 @@
 
   roles:
     - role: ansible-nginx
-      volume: /srv/nginx
-      http_port: 8080
-      https_port: 8443
-      clear_dh_parameter: false
-      dh_parameter_bits: 1024
-      ticketkey_enabled: true
-      rules:
+      nginx_image_version: 1.17.10-alpine
+      nginx_volume: /srv/nginx
+      nginx_http_port: 8080
+      nginx_https_port: 8443
+      nginx_clear_dh_parameter: false
+      nginx_dh_parameter_bits: 1024
+      nginx_ticketkey_enabled: true
+      nginx_rules:
         ssl:
           ssl_protocols: TLSv1.3 TLSv1.2
           ssl_ciphers: "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:\
@@ -19,7 +20,7 @@
             ECDH+AESGCM:ECDH+AES256:DH+AESGCM:DH+AES256:RSA+AESGCM:\
             !aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS"
           ssl_prefer_server_ciphers: 'on'
-          ssl_dhparam: ./ssl/{{ dh_parameter_filename }}
+          ssl_dhparam: ./ssl/{{ nginx_dh_parameter_filename }}
           ssl_ecdh_curve: secp384r1
           add_header: "Strict-Transport-Security 'max-age=31536000; \
             includeSubDomains; preload' always"
@@ -29,7 +30,7 @@
           ssl_buffer_size: 4k
           ssl_session_timeout: 10m
           ssl_session_tickets: 'on'
-          ssl_session_ticket_key: ./ssl/{{ ticketkey_filename }}
+          ssl_session_ticket_key: ./ssl/{{ nginx_ticketkey_filename }}
         proxy:
           proxy_set_header:
             - Host $http_host
@@ -39,9 +40,9 @@
           proxy_cookie_path: '/ "/; secure"'
           proxy_buffering: 'off'
           proxy_request_buffering: 'off'
-      upstreams:
+      nginx_upstreams:
         apache: 172.17.0.1:10080
-      configs:
+      nginx_configs:
         apache:
           servers:
             - options:

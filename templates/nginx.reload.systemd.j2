@@ -1,8 +1,8 @@
 [Unit]
 Description = nginx reload service
-Requires    = {{systemd_service_name}}.service
+Requires    = {{nginx_service_name}}.service
 
 [Service]
-ExecStart = /usr/bin/docker exec {{docker_container.name}} nginx -s reload
+ExecStart = /usr/bin/docker exec {{nginx_docker_container_name}} nginx -s reload
 Restart = no
 TimeoutSec = 60

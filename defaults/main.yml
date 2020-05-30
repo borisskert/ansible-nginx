@@ -1,48 +1,45 @@
 ---
-image_name: nginx
-image_version: 1.17.9-alpine
+nginx_image_name: nginx
+nginx_image_version: mainline-alpine
 
-service_name: nginx
+nginx_service_name: nginx
 
-https_port: 443
-http_port: 80
+nginx_https_port: 443
+nginx_http_port: 80
 
-configs: []
-upstreams: {}
-rules: {}
+nginx_configs: []
+nginx_upstreams: {}
+nginx_rules: {}
 
-volume: ''
-conf_folder: "{{volume}}/conf.d"
-rules_folder: "{{volume}}/rules"
-certs_folder: "{{volume}}/certs"
-ssl_folder: "{{volume}}/ssl"
-www_folder: "{{volume}}/www"
-log_folder: /var/log/nginx
+nginx_volume: ''
+nginx_conf_folder: "{{ nginx_volume }}/conf.d"
+nginx_rules_folder: "{{ nginx_volume }}/rules"
+nginx_certs_folder: "{{ nginx_volume }}/certs"
+nginx_ssl_folder: "{{ nginx_volume }}/ssl"
+nginx_www_folder: "{{ nginx_volume }}/www"
+nginx_log_folder: /var/log/nginx
 
-working_directory: /opt/nginx
+nginx_working_directory: /opt/nginx
 
 
-systemd_service_name: "{{service_name}}"
-reload_service_name: "{{service_name}}.reload"
-ticketkey_renew_service_name: "{{service_name}}-ticketkey-renew"
+nginx_reload_service_name: "{{ nginx_service_name }}.reload"
+nginx_ticketkey_renew_service_name: "{{ nginx_service_name }}-ticketkey-renew"
 
-docker_container:
-  name: "{{service_name}}.service"
+nginx_docker_container_name: "{{ nginx_service_name }}.service"
 
-letsencrypt_well_known_folder: "{{www_folder}}/.well-known"
+nginx_letsencrypt_well_known_folder: "{{ nginx_www_folder }}/.well-known"
 
-script_folder: "{{working_directory}}"
+nginx_script_folder: "{{ nginx_working_directory }}"
 
-ssl_parameters_file: ssl_parameters.conf
-proxy_parameters_file: proxy_parameters.conf
+nginx_clear_dh_parameter: false
+nginx_dh_parameter_bits: 2048
+nginx_dh_parameter_filename: "dh_param_{{ nginx_dh_parameter_bits }}.pem"
+nginx_dh_parameter_path:
+  "{{ nginx_ssl_folder }}/{{ nginx_dh_parameter_filename }}"
 
-clear_dh_parameter: false
-dh_parameter_bits: 2048
-dh_parameter_filename: "dh_param_{{dh_parameter_bits}}.pem"
-dh_parameter_path: "{{ssl_folder}}/{{dh_parameter_filename}}"
+nginx_logrotate_config: /etc/logrotate.d/nginx
 
-logrotate_config: /etc/logrotate.d/nginx
-
-ticketkey_enabled: false
-ticketkey_filename: nginx_ticketkey
-ticketkey_file_path: "{{ssl_folder}}/{{ticketkey_filename}}"
+nginx_ticketkey_enabled: false
+nginx_ticketkey_filename: nginx_ticketkey
+nginx_ticketkey_file_path:
+  "{{ nginx_ssl_folder }}/{{ nginx_ticketkey_filename }}"

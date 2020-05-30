@@ -2,7 +2,7 @@
 Description = nginx ticketkey renew service
 
 [Service]
-ExecStart=/bin/bash -c "head -c 48 /dev/urandom > {{ticketkey_file_path}}"
-ExecStopPost=-/bin/systemctl start {{reload_service_name}}
+ExecStart=/bin/bash -c "head -c 48 /dev/urandom > {{nginx_ticketkey_file_path}}"
+ExecStopPost=-/bin/systemctl start {{nginx_reload_service_name}}
 Restart = no
 TimeoutSec = 60

@@ -1,7 +1,7 @@
 ---
-- name: Check 'volume' parameter
+- name: Check 'nginx_volume' parameter
   assert:
     that:
-      - "volume is defined"
-      - "volume | length > 0"
-    fail_msg: "parameter 'volume' is missing"
+      - "nginx_volume is defined"
+      - "nginx_volume | length > 0"
+    fail_msg: "parameter 'nginx_volume' is missing"

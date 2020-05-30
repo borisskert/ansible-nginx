@@ -1,7 +1,7 @@
 ---
 - name: create config directory
   file:
-    path: "{{ conf_folder }}"
+    path: "{{ nginx_conf_folder }}"
     state: directory
     owner: root
     group: root
@@ -9,7 +9,7 @@
 
 - name: create rules directory
   file:
-    path: "{{ rules_folder }}"
+    path: "{{ nginx_rules_folder }}"
     state: directory
     owner: root
     group: root
@@ -17,7 +17,7 @@
 
 - name: create certs directory
   file:
-    path: "{{ certs_folder }}"
+    path: "{{ nginx_certs_folder }}"
     state: directory
     owner: root
     group: root
@@ -25,7 +25,7 @@
 
 - name: create ssl directory
   file:
-    path: "{{ ssl_folder }}"
+    path: "{{ nginx_ssl_folder }}"
     state: directory
     owner: root
     group: root
@@ -33,7 +33,7 @@
 
 - name: create www directory
   file:
-    path: "{{ www_folder }}"
+    path: "{{ nginx_www_folder }}"
     state: directory
     owner: root
     group: root
@@ -41,7 +41,7 @@
 
 - name: create letsencrypt well-known directory
   file:
-    path: "{{ letsencrypt_well_known_folder }}"
+    path: "{{ nginx_letsencrypt_well_known_folder }}"
     state: directory
     owner: root
     group: root
@@ -49,7 +49,7 @@
 
 - name: create log directory
   file:
-    path: "{{ log_folder }}"
+    path: "{{ nginx_log_folder }}"
     state: directory
     owner: root
     group: root
@@ -57,7 +57,7 @@
 
 - name: create script directory
   file:
-    path: "{{ script_folder }}"
+    path: "{{ nginx_script_folder }}"
     state: directory
     owner: root
     group: root
