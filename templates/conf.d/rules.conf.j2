@@ -1,9 +1,15 @@
 {% for key, value in item.value.items() %}
-{% if value | length == value | string | length %}
+{% if value is none or value | length < 1 %}
+{{ key }};
+{% elif value | length == value | string | length %}
 {{ key }} {{ value }};
 {% else %}
 {% for value_entry in value %}
+{% if value_entry is none or value_entry | length < 1 %}
+{{ key }};
+{% else %}
 {{ key }} {{ value_entry }};
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}

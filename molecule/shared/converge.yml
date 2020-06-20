@@ -95,6 +95,12 @@
                 '/':
                   proxy_pass: http://apache/
                   include: ./rules/proxy.conf
+                '/video/':
+                  proxy_pass: http://apache/
+                  include: ./rules/proxy.conf
+                  mp4:
+                  mp4_buffer_size: 1m
+                  mp4_max_buffer_size: 5m
                 '~ /.well-known':
                   root: /var/www/html
                   allow: all

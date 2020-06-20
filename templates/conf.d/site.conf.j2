@@ -3,21 +3,39 @@
 server {
 {% if server.options is defined %}
 {% for key, value in server.options.items() %}
-{% if value | length == value | string | length %}
+{% if value is none or value | length < 1 %}
+  {{ key }};
+{% elif value | length == value | string | length %}
   {{ key }} {{ value }};
 {% else %}
 {% for value_entry in value %}
+{% if value_entry | length < 1 %}
+  {{ key }};
+{% else %}
   {{ key }} {{ value_entry }};
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}
 {% endif %}
 {% if server.locations is defined %}
 {% for location_key, location_value in server.locations.items() %}
-  location {{location_key}} {
+  location {{ location_key }} {
 {% if location_value is defined %}
 {% for key, value in location_value.items() %}
-    {{key}} {{ value }};
+{% if value is none or value | length < 1 %}
+    {{ key }};
+{% elif value | length == value | string | length %}
+    {{ key }} {{ value }};
+{% else %}
+{% for value_entry in value %}
+{% if value_entry is none or value_entry | length < 1 %}
+    {{ key }};
+{% else %}
+    {{ key }} {{ value_entry }};
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
   }

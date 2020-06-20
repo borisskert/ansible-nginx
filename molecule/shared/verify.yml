@@ -63,6 +63,13 @@
           proxy_pass http://apache/;
           include ./rules/proxy.conf;
         }
+        location /video/ {
+          proxy_pass http://apache/;
+          include ./rules/proxy.conf;
+          mp4;
+          mp4_buffer_size 1m;
+          mp4_max_buffer_size 5m;
+        }
         location ~ /.well-known {
           root /var/www/html;
           allow all;
