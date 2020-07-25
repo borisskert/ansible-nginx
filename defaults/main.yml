@@ -8,7 +8,6 @@ nginx_https_port: 443
 nginx_http_port: 80
 
 nginx_configs: []
-nginx_upstreams: {}
 nginx_rules: {}
 
 nginx_volume: ''

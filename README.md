@@ -50,47 +50,56 @@ Installs nginx as docker systemd service.
 | nginx_clear_dh_parameter            | boolean      | no | false                        |  |
 | nginx_dh_parameter_bits             | integer number | no | 4096                       |  |
 | nginx_ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
-| nginx_upstreams                     | dictionary of `upstream` | no | <empty object>   | Defines all nginx upstreams |
-| nginx_configs                       | dictionary of `site`     | no | <empty object>   | Defines all nginx sites |
-| nginx_rules                         | dictionary of `rule`     | no | <empty object>   | Defines all reusable nginx rules |
+| nginx_config                        | `nginx_config` object | no | <empty object>      | Specifies the main nginx.conf |
+| nginx_configs                       | dictionary of `nginx_config` objects | no | <empty object>   | Defines all config files in `conf.d` directory |
+| nginx_rules                         | dictionary of `nginx_config` objects | no | <empty object>   | Defines all rule files in `rules` directory |
 
-### Definition of `site`
+### Definition of `nginx_config`
 
-The site config object is structured as map:
- the key represents the config name, the value is an embedded object with following structure:
+The site config object is structured as map of key value pairs. Values may be simple strings, lists and embedded objects.
+Embedded objects also may contain the same structure as `nginx_config` objects.
 
-| Property      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| servers       | dictionary of `server` | no | <empty object> | Defines the server configs for this `site` |
+#### Templating rules
 
-### Definition of `upstream`
+##### Simple string property
+```yaml
+my_config:
+  my_key: my_value
+```
+is templated to:
+```
+my_key my_value;
+```
 
-| Property      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| key           | text | yes |  | The upstream name |
-| value         | text | yes |  | The upstream value |
+##### List property
+```yaml
+my_config:
+  my_key:
+    - my_value_one
+    - my_value_two
+    - my_value_three
+```
+is templated to:
+```
+my_key my_value_one;
+my_key my_value_two;
+my_key my_value_three;
+```
 
-### Definition of `server`
-
-| Property      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| options       | multi-value dictionary of values | yes |         | Defines the options for this `server`       |
-| locations     | dictionary of `location`         | no  | <empty> | Defines the locations for this `server` |
-| disabled      | boolean                          | no  |         | Disable this `server` setting |
-
-### Definition of `location`
-
-| Property      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| key           | url  | yes |                | The location as url   |
-| values        | dictionary | no   | <empty> | The options for this `location` |
-
-### Definition of `rule`
-
-| Property      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| key           | text | yes        |         | The name of the rules file |
-| values        | multi-value dictionary of values | yes | | The nginx rules |
+##### Embedded object property
+```yaml
+my_config:
+  my_obj:
+    my_key_one: my_value_one
+    my_key_two: my_value_two
+```
+is templated to:
+```
+my_obj {
+  my_key_one my_value_one;
+  my_key_two my_value_two;
+}
+```
 
 ## Example Playbook
 
@@ -102,31 +111,38 @@ The site config object is structured as map:
   scm: git
 ```
 
-Minimal playbook:
-
-```yaml
-    - hosts: servers
-      roles:
-      - role: install-nginx
-        nginx_volume: /srv/nginx
-```
-
-Example with parameters:
+### Example `playbook.yml`:
 
 ```yaml
 - hosts: servers
   roles:
   - role: install-nginx
+    nginx_image_version: 1.17.10-alpine
     nginx_volume: /srv/nginx
-    nginx_certs_folder: /srv/letsencrypt/config/live
-    nginx_log_folder: /var/log/nginx
-    nginx_https_port: 443
-    nginx_http_port: 80
-    nginx_ticketkey_enabled: yes
-    nginx_dh_parameter_bits: 2048
-    nginx_upstreams:
-      apache: 172.17.0.1:8080
-      gitlab: 172.17.0.1:10081
+    nginx_http_port: 8080
+    nginx_https_port: 8443
+    nginx_clear_dh_parameter: false
+    nginx_dh_parameter_bits: 1024
+    nginx_ticketkey_enabled: true
+    nginx_config:
+      user: nginx
+      worker_processes: auto
+      error_log: /var/log/nginx/error.log warn
+      pid: /var/run/nginx.pid
+      events:
+        worker_connections: '1024'
+      http:
+        include:
+          - /etc/nginx/mime.types
+          - /etc/nginx/conf.d/*.conf
+        default_type: application/octet-stream
+        log_format: |-
+          main  '$remote_addr - $remote_user [$time_local] "$request" '
+          '$status $body_bytes_sent "$http_referer" '
+          '"$http_user_agent" "$http_x_forwarded_for"'
+        access_log: /var/log/nginx/access.log  main
+        sendfile: 'on'
+        keepalive_timeout: '65'
     nginx_rules:
       ssl:
         ssl_protocols: TLSv1.3 TLSv1.2
@@ -156,44 +172,58 @@ Example with parameters:
         proxy_buffering: 'off'
         proxy_request_buffering: 'off'
     nginx_configs:
+      upstreams:
+        upstream apache:
+          server: 172.17.0.1:10080
+        upstream gitlab:
+          server: 172.17.0.1:10081
       apache:
-        servers:
-          - options:
-              listen:
-                - '80'
-                - '[::]:80'
+        server:
+          - listen:
+              - '80'
+              - '[::]:80'
             server_name: my.http.server
-            locations:
-              '/':
-                proxy_pass: http://apache/
-                include: ./rules/proxy.conf
-              '~ /.well-known':
-                root: /var/www/html
-                allow: all
+            location /:
+              proxy_pass: http://apache/
+              include: ./rules/proxy.conf
+            location ~ /.well-known:
+              root: /var/www/html
+              allow: all
+          - listen:
+              - '443 ssl http2'
+              - '[::]:443 ssl http2'
+            server_name: my.http.server
+            ssl_certificate: certs/live/my.https.server/fullchain.pem
+            ssl_certificate_key: certs/live/my.https.server/privkey.pem
+            ssl_trusted_certificate: certs/live/my.https.server/chain.pem
+            include: ./rules/ssl.conf
+            location /:
+              proxy_pass: http://apache
+              include: ./rules/proxy.conf
+            location ~ /.well-known:
+              root: /var/www/html
+              allow: all
       gitlab:
-        servers:
-          - options:
-              listen:
-                - '80'
-                - '[::]:80'
+        server:
+          - listen:
+              - '80'
+              - '[::]:80'
             server_name: my.gitlab.server
             return: 301 https://$server_name$request_uri
-          - options:
-              listen:
-                - '443 ssl http2'
-                - '[::]:443 ssl http2'
-              server_name: my.gitlab.server
-              ssl_certificate: ./certs/live/my.gitlab.server/fullchain.pem
-              ssl_certificate_key: ./certs/live/my.gitlab.server/privkey.pem
-              ssl_trusted_certificate: ./certs/live/my.gitlab.server/chain.pem
-              include: ./rules/ssl.conf
-            locations:
-              '/':
-                proxy_pass: http://gitlab/
-                include: ./rules/proxy.conf
-              '~ /.well-known':
-                root: /var/www/html
-                allow: all
+          - listen:
+              - '443 ssl http2'
+              - '[::]:443 ssl http2'
+            server_name: my.gitlab.server
+            ssl_certificate: certs/live/my.gitlab.server/fullchain.pem
+            ssl_certificate_key: certs/live/my.gitlab.server/privkey.pem
+            ssl_trusted_certificate: certs/live/my.gitlab.server/chain.pem
+            include: ./rules/ssl.conf
+            location /:
+              proxy_pass: http://gitlab/
+              include: ./rules/proxy.conf
+            location ~ /.well-known:
+              root: /var/www/html
+              allow: all
 ```
 
 ## Testing

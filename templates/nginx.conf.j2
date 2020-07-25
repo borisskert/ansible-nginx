@@ -1,0 +1,45 @@
+{%- macro render_key_multi_value_pair(key, value=[]) -%}
+    {%- for value_entry in value -%}
+        {%- if value_entry | length < 1 -%}
+            {{ key }};
+{% else -%}
+            {{ render_key_value_pair(key, value_entry) }}
+{%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+
+{%- macro render_key_value_pair(key, value) -%}
+    {%- if value['items'] is defined and value.items() is defined %}
+{{ render_obj(key, value) }}
+{% elif value is none or value | length < 1 %}
+{{ key }};
+{% elif value | length == value | string | length %}
+{{ key }} {{ value }};
+{% else -%}
+        {{ render_key_multi_value_pair(key, value) }}
+{%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro render_obj_values(items={}) -%}
+{% for key, value in items -%}
+  {{ render_key_value_pair(key, value) }}
+{%- endfor -%}
+{%- endmacro -%}
+
+
+{%- macro render_obj(name='', obj={}) -%}
+{{ name }} {
+{{ render_obj_values(obj.items()) | indent(2, true) }}}
+{%- endmacro -%}
+
+
+{%- macro render_config(config={}) -%}
+  {%- for key, value in config -%}
+    {{ render_key_value_pair(key, value) }}
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+{{ render_config(config_dict.items()) }}

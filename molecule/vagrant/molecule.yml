@@ -12,6 +12,8 @@ driver:
 platforms:
   - name: ansible-nginx-xenial
     box: ubuntu/xenial64
+    instance_raw_config_args:
+      - 'vm.network "private_network", ip: "192.168.33.67"'
   - name: ansible-nginx-bionic
     box: ubuntu/bionic64
   - name: ansible-nginx-focal

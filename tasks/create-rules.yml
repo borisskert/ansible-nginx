@@ -35,8 +35,5 @@
   notify: Reload nginx
 
 - name: template rules config
-  template:
-    src: conf.d/rules.conf.j2
-    dest: "{{ nginx_rules_folder }}/{{ item.key }}.conf"
+  include: create-rule.yml
   with_dict: "{{ nginx_rules }}"
-  notify: Reload nginx

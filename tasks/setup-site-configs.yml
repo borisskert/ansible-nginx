@@ -17,9 +17,6 @@
       + ['{{ nginx_conf_folder }}/upstreams.conf']
       }}
 
-- debug:
-    var: intended_file_paths
-
 - name: determine site config files to be removed
   set_fact:
     files_to_remove_paths: >
@@ -39,8 +36,5 @@
   notify: Reload nginx
 
 - name: template site config
-  template:
-    src: conf.d/site.conf.j2
-    dest: "{{ nginx_conf_folder }}/{{ item.key }}.conf"
+  include: setup-site-config.yml
   with_dict: "{{ nginx_configs }}"
-  notify: Reload nginx

@@ -14,6 +14,9 @@ ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > {{nginx_ticketkey_file_path
 {% endif %}
 
 ExecStart=/usr/bin/docker run --name {{nginx_docker_container_name}} \
+{% if nginx_config is defined %}
+            --volume {{ nginx_volume }}/nginx.conf:/etc/nginx/nginx.conf:ro \
+{% endif %}
 {% if nginx_conf_folder is defined and nginx_conf_folder | length > 0 %}
             --volume {{nginx_conf_folder}}:/etc/nginx/conf.d \
 {% endif %}

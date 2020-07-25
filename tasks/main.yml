@@ -24,11 +24,14 @@
 
 - include: create_dh_parameter.yml
 
-- name: template upstream config
+- name: template nginx config
   template:
-    src: conf.d/upstreams.conf.j2
-    dest: "{{ nginx_conf_folder }}/upstreams.conf"
-  notify: Reload nginx
+    src: nginx.conf.j2
+    dest: "{{ nginx_volume }}/nginx.conf"
+  notify: Restart nginx service
+  vars:
+    config_dict: "{{ nginx_config }}"
+  when: nginx_config is defined
 
 - name: template site configs
   include: setup-site-configs.yml

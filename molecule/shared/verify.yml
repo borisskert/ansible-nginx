@@ -12,19 +12,79 @@
   failed_when: dummy_rules_config.stat.exists
 
 - name: should create upstream config file
-  copy:
-    dest: /srv/nginx/conf.d/upstreams.conf
-    content: |
+  stat:
+    path: /srv/nginx/conf.d/upstreams.conf
+  register: upstreams_conf_file
+  failed_when: not (
+    upstreams_conf_file.stat.exists | bool
+    and not upstreams_conf_file.stat.isdir | bool
+    )
+
+- name: should template upstream config file
+  slurp:
+    src: /srv/nginx/conf.d/upstreams.conf
+  register: upstreams_conf_file_content
+  failed_when:
+    not upstreams_conf_file_content.content == ( expected_content | b64encode )
+  vars:
+    expected_content: |
       upstream apache {
         server 172.17.0.1:10080;
       }
-  register: upstreams_conf_file
-  failed_when: upstreams_conf_file.changed
+
+- name: should create nginx config file
+  stat:
+    path: /srv/nginx/nginx.conf
+  register: nginx_conf_file
+  failed_when: not (
+    nginx_conf_file.stat.exists | bool
+    and not nginx_conf_file.stat.isdir | bool
+    )
+
+- name: should template nginx config file
+  slurp:
+    src: /srv/nginx/nginx.conf
+  register: nginx_conf_file_content
+  failed_when:
+    not nginx_conf_file_content.content == ( expected_content | b64encode )
+  vars:
+    expected_content: |
+      user nginx;
+      worker_processes auto;
+      error_log /var/log/nginx/error.log warn;
+      pid /var/run/nginx.pid;
+      events {
+        worker_connections 1024;
+      }
+      http {
+        include /etc/nginx/mime.types;
+        include /etc/nginx/conf.d/*.conf;
+        default_type application/octet-stream;
+        log_format main  '$remote_addr - $remote_user [$time_local] "$request" '
+        '$status $body_bytes_sent "$http_referer" '
+        '"$http_user_agent" "$http_x_forwarded_for"';
+        access_log /var/log/nginx/access.log  main;
+        sendfile on;
+        keepalive_timeout 65;
+      }
 
 - name: should create apache config file
-  copy:
-    dest: /srv/nginx/conf.d/apache.conf
-    content: |
+  stat:
+    path: /srv/nginx/conf.d/apache.conf
+  register: apache_conf_file
+  failed_when: not (
+    apache_conf_file.stat.exists | bool
+    and not apache_conf_file.stat.isdir | bool
+    )
+
+- name: should template apache config file
+  slurp:
+    src: /srv/nginx/conf.d/apache.conf
+  register: apache_conf_file_content
+  failed_when:
+    not apache_conf_file_content.content == ( expected_content | b64encode )
+  vars:
+    expected_content: |
       server {
         listen 80;
         listen [::]:80;
@@ -38,13 +98,41 @@
           allow all;
         }
       }
-  register: apache_conf_file
-  failed_when: apache_conf_file.changed
+      server {
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+        server_name my.http.server;
+        ssl_certificate certs/live/my.https.server/fullchain.pem;
+        ssl_certificate_key certs/live/my.https.server/privkey.pem;
+        ssl_trusted_certificate certs/live/my.https.server/chain.pem;
+        include ./rules/ssl.conf;
+        location / {
+          proxy_pass http://apache;
+          include ./rules/proxy.conf;
+        }
+        location ~ /.well-known {
+          root /var/www/html;
+          allow all;
+        }
+      }
 
 - name: should create https config file
-  copy:
-    dest: /srv/nginx/conf.d/https.conf
-    content: |
+  stat:
+    path: /srv/nginx/conf.d/https.conf
+  register: https_conf_file
+  failed_when: not (
+    https_conf_file.stat.exists | bool
+    and not https_conf_file.stat.isdir | bool
+    )
+
+- name: should template https config file
+  slurp:
+    src: /srv/nginx/conf.d/https.conf
+  register: https_conf_file_content
+  failed_when:
+    not https_conf_file_content.content is match( expected_content | b64encode )
+  vars:
+    expected_content: |
       server {
         listen 80;
         listen [::]:80;
@@ -55,9 +143,9 @@
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
         server_name my.https.server;
-        ssl_certificate ./certs/live/my.https.server/fullchain.pem;
-        ssl_certificate_key ./certs/live/my.https.server/privkey.pem;
-        ssl_trusted_certificate ./certs/live/my.https.server/chain.pem;
+        ssl_certificate certs/live/my.https.server/fullchain.pem;
+        ssl_certificate_key certs/live/my.https.server/privkey.pem;
+        ssl_trusted_certificate certs/live/my.https.server/chain.pem;
         include ./rules/ssl.conf;
         location / {
           proxy_pass http://apache/;
@@ -75,13 +163,24 @@
           allow all;
         }
       }
-  register: https_conf_file
-  failed_when: https_conf_file.changed
 
 - name: should create ssl rules file
-  copy:
-    dest: /srv/nginx/rules/ssl.conf
-    content: "ssl_protocols TLSv1.3 TLSv1.2;
+  stat:
+    path: /srv/nginx/rules/ssl.conf
+  register: ssl_rules_file
+  failed_when: not (
+    ssl_rules_file.stat.exists | bool
+    and not ssl_rules_file.stat.isdir | bool
+    )
+
+- name: should template ssl rules file
+  slurp:
+    src: /srv/nginx/rules/ssl.conf
+  register: ssl_rules_file_content
+  failed_when:
+    not ssl_rules_file_content.content is match( expected_content | b64encode )
+  vars:
+    expected_content: "ssl_protocols TLSv1.3 TLSv1.2;
 
       ssl_ciphers EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA512:\
       EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:ECDH+AESGCM:ECDH+AES256:DH+AESGCM:\
@@ -111,13 +210,24 @@
       ssl_session_ticket_key ./ssl/nginx_ticketkey;
 
       "
-  register: ssl_rules_file
-  failed_when: ssl_rules_file.changed
 
 - name: should create proxy rules file
-  copy:
-    dest: /srv/nginx/rules/proxy.conf
-    content: "proxy_set_header Host $http_host;
+  stat:
+    path: /srv/nginx/rules/proxy.conf
+  register: proxy_rules_file
+  failed_when: not (
+    proxy_rules_file.stat.exists | bool
+    and not proxy_rules_file.stat.isdir | bool
+    )
+
+- name: should template proxy rules file
+  slurp:
+    src: /srv/nginx/rules/proxy.conf
+  register: proxy_rules_file_content
+  failed_when:
+    not proxy_rules_file_content.content is match( expected_content | b64encode )
+  vars:
+    expected_content: "proxy_set_header Host $http_host;
 
       proxy_set_header X-Real-IP $remote_addr;
 
@@ -132,8 +242,6 @@
       proxy_request_buffering off;
 
       "
-  register: proxy_rules_file
-  failed_when: proxy_rules_file.changed
 
 - name: Should have pulled image
   docker_image:

@@ -7,6 +7,15 @@
     - name: Perform verify
       include: ../shared/verify.yml
 
+    - name: Should open 8080/tcp port
+      command: nc -z -w1 localhost 8080
+      changed_when: false
+      register: netcat_8080
+      retries: 300
+      delay: 1
+      until: netcat_8080 is defined
+        and netcat_8080.rc == 0
+
     - name: Should GET http root site
       get_url:
         url: http://localhost:8080/
@@ -14,6 +23,15 @@
       register: get_http_request
       failed_when: get_http_request.status_code != 200
         and get_http_request.md5 != '5388f60d7695cb57b87c799ee62d20b2'
+
+    - name: Should open 8443/tcp port
+      command: nc -z -w1 localhost 8443
+      changed_when: false
+      register: netcat_8443
+      retries: 300
+      delay: 1
+      until: netcat_8443 is defined
+        and netcat_8443.rc == 0
 
     - name: Should GET https root site
       get_url:
