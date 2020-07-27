@@ -33,6 +33,12 @@
     config_dict: "{{ nginx_config }}"
   when: nginx_config is defined
 
+- name: template nginx config
+  file:
+    path: "{{ nginx_volume }}/nginx.conf"
+    state: absent
+  when: nginx_config is not defined
+
 - name: template site configs
   include: setup-site-configs.yml
 

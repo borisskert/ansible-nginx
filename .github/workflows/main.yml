@@ -18,7 +18,12 @@ jobs:
         with:
           path: "${{ github.repository }}"
 
-      - name: lint and test with molecule
+      - name: lint and test (scenario 'default') with molecule
         uses: borisskert/molecule-action@v20.07.21
         with:
           arguments: test
+
+      - name: lint and test (scenario 'without-nginx-conf') with molecule
+        uses: borisskert/molecule-action@v20.07.21
+        with:
+          arguments: test -s without-nginx-conf

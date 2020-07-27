@@ -32,42 +32,6 @@
         server 172.17.0.1:10080;
       }
 
-- name: should create nginx config file
-  stat:
-    path: /srv/nginx/nginx.conf
-  register: nginx_conf_file
-  failed_when: not (
-    nginx_conf_file.stat.exists | bool
-    and not nginx_conf_file.stat.isdir | bool
-    )
-
-- name: should template nginx config file
-  slurp:
-    src: /srv/nginx/nginx.conf
-  register: nginx_conf_file_content
-  failed_when:
-    not nginx_conf_file_content.content == ( expected_content | b64encode )
-  vars:
-    expected_content: |
-      user nginx;
-      worker_processes auto;
-      error_log /var/log/nginx/error.log warn;
-      pid /var/run/nginx.pid;
-      events {
-        worker_connections 1024;
-      }
-      http {
-        include /etc/nginx/mime.types;
-        include /etc/nginx/conf.d/*.conf;
-        default_type application/octet-stream;
-        log_format main  '$remote_addr - $remote_user [$time_local] "$request" '
-        '$status $body_bytes_sent "$http_referer" '
-        '"$http_user_agent" "$http_x_forwarded_for"';
-        access_log /var/log/nginx/access.log  main;
-        sendfile on;
-        keepalive_timeout 65;
-      }
-
 - name: should create apache config file
   stat:
     path: /srv/nginx/conf.d/apache.conf
@@ -130,7 +94,7 @@
     src: /srv/nginx/conf.d/https.conf
   register: https_conf_file_content
   failed_when:
-    not https_conf_file_content.content is match( expected_content | b64encode )
+    not https_conf_file_content.content == ( expected_content | b64encode )
   vars:
     expected_content: |
       server {
@@ -178,7 +142,7 @@
     src: /srv/nginx/rules/ssl.conf
   register: ssl_rules_file_content
   failed_when:
-    not ssl_rules_file_content.content is match( expected_content | b64encode )
+    not ssl_rules_file_content.content == ( expected_content | b64encode )
   vars:
     expected_content: "ssl_protocols TLSv1.3 TLSv1.2;
 
@@ -225,7 +189,7 @@
     src: /srv/nginx/rules/proxy.conf
   register: proxy_rules_file_content
   failed_when:
-    not proxy_rules_file_content.content is match( expected_content | b64encode )
+    not proxy_rules_file_content.content == ( expected_content | b64encode )
   vars:
     expected_content: "proxy_set_header Host $http_host;
 
@@ -242,6 +206,15 @@
       proxy_request_buffering off;
 
       "
+
+- name: should create systemd unit file
+  stat:
+    path: /etc/systemd/system/nginx.service
+  register: systemd_unit_file
+  failed_when: not (
+    systemd_unit_file.stat.exists | bool
+    and not systemd_unit_file.stat.isdir | bool
+    )
 
 - name: Should have pulled image
   docker_image:

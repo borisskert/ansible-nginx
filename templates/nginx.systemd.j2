@@ -15,33 +15,34 @@ ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > {{nginx_ticketkey_file_path
 
 ExecStart=/usr/bin/docker run --name {{nginx_docker_container_name}} \
 {% if nginx_config is defined %}
-            --volume {{ nginx_volume }}/nginx.conf:/etc/nginx/nginx.conf:ro \
+  --volume {{ nginx_volume }}/nginx.conf:/etc/nginx/nginx.conf:ro \
 {% endif %}
 {% if nginx_conf_folder is defined and nginx_conf_folder | length > 0 %}
-            --volume {{nginx_conf_folder}}:/etc/nginx/conf.d \
+  --volume {{nginx_conf_folder}}:/etc/nginx/conf.d \
 {% endif %}
 {% if nginx_rules_folder is defined and nginx_rules_folder | length > 0 %}
-            --volume {{nginx_rules_folder}}:/etc/nginx/rules \
+  --volume {{nginx_rules_folder}}:/etc/nginx/rules \
 {% endif %}
 {% if nginx_certs_folder is defined and nginx_certs_folder | length > 0 %}
-            --volume {{nginx_certs_folder}}:/etc/nginx/certs \
+  --volume {{nginx_certs_folder}}:/etc/nginx/certs \
 {% endif %}
 {% if nginx_ssl_folder is defined and nginx_ssl_folder | length > 0 %}
-            --volume {{nginx_ssl_folder}}:/etc/nginx/ssl \
+  --volume {{nginx_ssl_folder}}:/etc/nginx/ssl \
 {% endif %}
 {% if nginx_www_folder is defined and nginx_www_folder | length > 0 %}
-            --volume {{nginx_www_folder}}:/var/www/html \
+  --volume {{nginx_www_folder}}:/var/www/html \
 {% endif %}
 {% if nginx_log_folder is defined and nginx_log_folder | length > 0 %}
-            --volume {{nginx_log_folder}}:/var/log/nginx \
+  --volume {{nginx_log_folder}}:/var/log/nginx \
 {% endif %}
 {% if nginx_https_port is defined and nginx_https_port > 0 %}
-            --publish {{nginx_https_port}}:443 \
+  --publish {{nginx_https_port}}:443 \
 {% endif %}
 {% if nginx_http_port is defined and nginx_http_port > 0 %}
-            --publish {{nginx_http_port}}:80 \
+  --publish {{nginx_http_port}}:80 \
 {% endif %}
-            {{nginx_image_name}}:{{nginx_image_version}}
+  {{nginx_image_name}}:{{nginx_image_version}}
+
 ExecStop=-/usr/bin/docker stop {{nginx_docker_container_name}}
 ExecStopPost=-/usr/bin/docker rm -f {{nginx_docker_container_name}}
 

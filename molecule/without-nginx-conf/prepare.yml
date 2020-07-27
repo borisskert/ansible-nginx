@@ -1,0 +1,42 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+
+  post_tasks:
+    - name: Perform prepare
+      include: ../shared/prepare.yml
+
+    - name: Create nginx config directory
+      file:
+        path: /srv/nginx
+        state: directory
+
+    - name: Create dummy site config
+      copy:
+        dest: /srv/nginx/nginx.conf
+        content: |
+          user nginx;
+           worker_processes auto;
+           error_log /var/log/nginx/error.log warn;
+           pid /var/run/nginx.pid;
+           events {
+             worker_connections 1024;
+           }
+           http {
+             include /etc/nginx/mime.types;
+             include /etc/nginx/conf.d/*.conf;
+             default_type application/octet-stream;
+             log_format main  '$remote_addr - $remote_user [$time_local] "$request" '
+             '$status $body_bytes_sent "$http_referer" '
+             '"$http_user_agent" "$http_x_forwarded_for"';
+             access_log /var/log/nginx/access.log  main;
+             sendfile on;
+             keepalive_timeout 65;
+           }
+
+  roles:
+    - role: install-docker
+      docker_storage_driver: overlay2
+      docker_cleanup_enabled: false
+      docker_install_pip_package: true

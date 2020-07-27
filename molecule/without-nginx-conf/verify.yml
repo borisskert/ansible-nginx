@@ -6,43 +6,13 @@
     - name: Perform verify
       include: ../shared/verify.yml
 
-    - name: should create nginx config file
+    - name: should remove unneeded nginx config
       stat:
         path: /srv/nginx/nginx.conf
-      register: nginx_conf_file
-      failed_when: not (
-        nginx_conf_file.stat.exists | bool
-        and not nginx_conf_file.stat.isdir | bool
-        )
+      register: unneeded_nginx_config
+      failed_when: unneeded_nginx_config.stat.exists
 
-    - name: should template nginx config file
-      slurp:
-        src: /srv/nginx/nginx.conf
-      register: nginx_conf_file_content
-      failed_when:
-        not nginx_conf_file_content.content == ( expected_content | b64encode )
-      vars:
-        expected_content: |
-          user nginx;
-          worker_processes auto;
-          error_log /var/log/nginx/error.log warn;
-          pid /var/run/nginx.pid;
-          events {
-            worker_connections 1024;
-          }
-          http {
-            include /etc/nginx/mime.types;
-            include /etc/nginx/conf.d/*.conf;
-            default_type application/octet-stream;
-            log_format main  '$remote_addr - $remote_user [$time_local] "$request" '
-            '$status $body_bytes_sent "$http_referer" '
-            '"$http_user_agent" "$http_x_forwarded_for"';
-            access_log /var/log/nginx/access.log  main;
-            sendfile on;
-            keepalive_timeout 65;
-          }
-
-    - name: should template systemd unit file with nginx.conf volume
+    - name: should template systemd unit file without nginx.conf volume
       slurp:
         src: /etc/systemd/system/nginx.service
       register: systemd_unit_file_content
@@ -64,7 +34,6 @@
           ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > /srv/nginx/ssl/nginx_ticketkey"
 
           ExecStart=/usr/bin/docker run --name nginx.service \
-            --volume /srv/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
             --volume /srv/nginx/conf.d:/etc/nginx/conf.d \
             --volume /srv/nginx/rules:/etc/nginx/rules \
             --volume /srv/nginx/certs:/etc/nginx/certs \

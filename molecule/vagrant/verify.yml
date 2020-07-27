@@ -7,6 +7,82 @@
     - name: Perform verify
       include: ../shared/verify.yml
 
+    - name: should create nginx config file
+      stat:
+        path: /srv/nginx/nginx.conf
+      register: nginx_conf_file
+      failed_when: not (
+        nginx_conf_file.stat.exists | bool
+        and not nginx_conf_file.stat.isdir | bool
+        )
+
+    - name: should template nginx config file
+      slurp:
+        src: /srv/nginx/nginx.conf
+      register: nginx_conf_file_content
+      failed_when:
+        not nginx_conf_file_content.content == ( expected_content | b64encode )
+      vars:
+        expected_content: |
+          user nginx;
+          worker_processes auto;
+          error_log /var/log/nginx/error.log warn;
+          pid /var/run/nginx.pid;
+          events {
+            worker_connections 1024;
+          }
+          http {
+            include /etc/nginx/mime.types;
+            include /etc/nginx/conf.d/*.conf;
+            default_type application/octet-stream;
+            log_format main  '$remote_addr - $remote_user [$time_local] "$request" '
+            '$status $body_bytes_sent "$http_referer" '
+            '"$http_user_agent" "$http_x_forwarded_for"';
+            access_log /var/log/nginx/access.log  main;
+            sendfile on;
+            keepalive_timeout 65;
+          }
+
+    - name: should template systemd unit file with nginx.conf volume
+      slurp:
+        src: /etc/systemd/system/nginx.service
+      register: systemd_unit_file_content
+      failed_when:
+        not systemd_unit_file_content.content == ( expected_content | b64encode )
+      vars:
+        expected_content: |
+          [Install]
+          WantedBy=multi-user.target
+
+          [Unit]
+          Description=nginx service
+          After=docker.service
+          Requires=docker.service
+
+          [Service]
+          ExecStartPre=-/usr/bin/docker rm -f nginx.service
+          ExecStartPre=/usr/bin/docker pull nginx:1.17.10-alpine
+          ExecStartPre=/bin/bash -c "head -c 48 /dev/urandom > /srv/nginx/ssl/nginx_ticketkey"
+
+          ExecStart=/usr/bin/docker run --name nginx.service \
+            --volume /srv/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+            --volume /srv/nginx/conf.d:/etc/nginx/conf.d \
+            --volume /srv/nginx/rules:/etc/nginx/rules \
+            --volume /srv/nginx/certs:/etc/nginx/certs \
+            --volume /srv/nginx/ssl:/etc/nginx/ssl \
+            --volume /srv/nginx/www:/var/www/html \
+            --volume /var/log/nginx:/var/log/nginx \
+            --publish 8443:443 \
+            --publish 8080:80 \
+            nginx:1.17.10-alpine
+
+          ExecStop=-/usr/bin/docker stop nginx.service
+          ExecStopPost=-/usr/bin/docker rm -f nginx.service
+
+          Restart=always
+          RestartSec=60s
+          TimeoutSec=3600
+
     - name: Should open 8080/tcp port
       command: nc -z -w1 localhost 8080
       changed_when: false
