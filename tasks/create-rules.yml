@@ -9,10 +9,10 @@
   set_fact:
     intended_file_paths: >
       {{
-      nginx_rules
-      | dict2items
+      lookup('dict', nginx_rules)
+      | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', nginx_rules_folder + '/\\1.conf')
+      | map('regex_replace', '^(.*)$', nginx_rules_folder + '/\1.conf')
       | list
       }}
 

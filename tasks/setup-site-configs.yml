@@ -5,11 +5,6 @@
     patterns: '*.conf'
   register: existing_files
 
-- name: Debug existing files
-  debug:
-    msg: "Existing file: {{ item }}"
-  loop: "{{ existing_files.files }}"
-
 - name: Determine intended site config files
   set_fact:
     intended_file_paths: >
@@ -22,11 +17,6 @@
       + [nginx_conf_folder + '/nginx.conf']
       }}
 
-- name: Debug intended files
-  debug:
-      msg: "Intended file: {{ item }}"
-  loop: "{{ intended_file_paths }}"
-
 - name: Determine site config files to be removed
   set_fact:
     files_to_remove_paths: >
@@ -37,11 +27,6 @@
       | reject('in', intended_file_paths)
       | list
       }}
-
-- name: Debug files to remove
-  debug:
-    msg: "File to be removed: {{ item }}"
-  loop: "{{ files_to_remove_paths }}"
 
 - name: Remove unneeded site configs
   file:

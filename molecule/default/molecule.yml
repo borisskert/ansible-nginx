@@ -22,42 +22,42 @@ platforms:
       - '/var/run/docker.sock:/var/run/docker.sock'
     groups:
       - docker
-#  - name: docker-jammy
-#    image: docker.io/borisskert/python3:jammy
-#    pull: true
-#    pre_build_image: true
-#    volumes:
-#      - '/var/run/docker.sock:/var/run/docker.sock'
-#    groups:
-#      - docker
-#  - name: docker-focal
-#    image: docker.io/borisskert/python3:focal
-#    pull: true
-#    pre_build_image: true
-#    volumes:
-#      - '/var/run/docker.sock:/var/run/docker.sock'
-#    groups:
-#      - docker
-#
-#  - name: docker-bookworm
-#    image: docker.io/borisskert/python3:bookworm
-#    pull: true
-#    pre_build_image: true
-#    volumes:
-#      - '/var/run/docker.sock:/var/run/docker.sock'
-#    groups:
-#      - docker
-#      - debian
-#
-#  - name: docker-bullseye
-#    image: docker.io/borisskert/python3:bullseye
-#    pull: true
-#    pre_build_image: true
-#    volumes:
-#      - '/var/run/docker.sock:/var/run/docker.sock'
-#    groups:
-#      - docker
-#      - debian
+  - name: docker-jammy
+    image: docker.io/borisskert/python3:jammy
+    pull: true
+    pre_build_image: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    groups:
+      - docker
+  - name: docker-focal
+    image: docker.io/borisskert/python3:focal
+    pull: true
+    pre_build_image: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    groups:
+      - docker
+
+  - name: docker-bookworm
+    image: docker.io/borisskert/python3:bookworm
+    pull: true
+    pre_build_image: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    groups:
+      - docker
+      - debian
+
+  - name: docker-bullseye
+    image: docker.io/borisskert/python3:bullseye
+    pull: true
+    pre_build_image: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    groups:
+      - docker
+      - debian
 
 provisioner:
   name: ansible
