@@ -4,7 +4,7 @@
 
   tasks:
     - name: Perform verify
-      include: ../shared/verify.yml
+      include_tasks: ../shared/verify.yml
 
     - name: should create nginx config file
       stat:

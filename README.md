@@ -185,7 +185,7 @@ my_obj {
             server_name: my.http.server
             location /:
               proxy_pass: http://apache/
-              include: ./rules/proxy.conf
+              include_tasks: ./rules/proxy.conf
             location ~ /.well-known:
               root: /var/www/html
               allow: all
@@ -196,10 +196,10 @@ my_obj {
             ssl_certificate: certs/live/my.https.server/fullchain.pem
             ssl_certificate_key: certs/live/my.https.server/privkey.pem
             ssl_trusted_certificate: certs/live/my.https.server/chain.pem
-            include: ./rules/ssl.conf
+            include_tasks: ./rules/ssl.conf
             location /:
               proxy_pass: http://apache
-              include: ./rules/proxy.conf
+              include_tasks: ./rules/proxy.conf
             location ~ /.well-known:
               root: /var/www/html
               allow: all
@@ -217,10 +217,10 @@ my_obj {
             ssl_certificate: certs/live/my.gitlab.server/fullchain.pem
             ssl_certificate_key: certs/live/my.gitlab.server/privkey.pem
             ssl_trusted_certificate: certs/live/my.gitlab.server/chain.pem
-            include: ./rules/ssl.conf
+            include_tasks: ./rules/ssl.conf
             location /:
               proxy_pass: http://gitlab/
-              include: ./rules/proxy.conf
+              include_tasks: ./rules/proxy.conf
             location ~ /.well-known:
               root: /var/www/html
               allow: all
