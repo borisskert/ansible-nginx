@@ -3,27 +3,24 @@ dependency:
   name: galaxy
   options:
     role-file: ./molecule/shared/requirements.yml
+    force: true
 
 driver:
   name: vagrant
-  provider:
-    name: virtualbox
 
 platforms:
-  - name: ansible-nginx-xenial
-    box: ubuntu/xenial64
-    instance_raw_config_args:
-      - 'vm.network "private_network", ip: "192.168.33.67"'
-  - name: ansible-nginx-bionic
-    box: ubuntu/bionic64
+  - name: ansible-nginx-noble
+    box: cloud-image/ubuntu-24.04
+  - name: ansible-nginx-jammy
+    box: cloud-image/ubuntu-22.04
   - name: ansible-nginx-focal
-    box: ubuntu/focal64
-  - name: ansible-nginx-stretch
-    box: debian/stretch64
+    box: cloud-image/ubuntu-20.04
+  - name: ansible-nginx-bookworm
+    box: cloud-image/debian-12
     groups:
       - debian
-  - name: ansible-nginx-buster
-    box: debian/buster64
+  - name: ansible-nginx-bullseye
+    box: cloud-image/debian-11
     groups:
       - debian
 
@@ -36,16 +33,16 @@ provisioner:
       debian:
         ansible_python_interpreter: /usr/bin/python3
     host_vars:
-      ansible-nginx-stretch:
-        nginx_ca_name: ansible-nginx-stretch
-      ansible-nginx-buster:
-        nginx_ca_name: ansible-nginx-buster
+      ansible-nginx-noble:
+        nginx_ca_name: ansible-nginx-noble
+      ansible-nginx-jammy:
+        nginx_ca_name: ansible-nginx-jammy
       ansible-nginx-focal:
         nginx_ca_name: ansible-nginx-focal
-      ansible-nginx-bionic:
-        nginx_ca_name: ansible-nginx-bionic
-      ansible-nginx-xenial:
-        nginx_ca_name: ansible-nginx-xenial
+      ansible-nginx-bookworm:
+        nginx_ca_name: ansible-nginx-bookworm
+      ansible-nginx-bullseye:
+        nginx_ca_name: ansible-nginx-bullseye
 
 verifier:
   name: ansible

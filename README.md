@@ -4,11 +4,13 @@ Installs nginx as docker systemd service.
 
 ## Supported operating systems
 
-* Ubuntu 16.04
-* Ubuntu 18.04
-* Ubuntu 20.04
-* Debian 9
-* Debian 10
+* Ubuntu:
+    * 24.04 (noble)
+    * 22.04 (jammy)
+    * 20.04 (focal)
+* Debian
+    * 12 (bookworm)
+    * 11 (bullseye)
 
 ## System requirements
 
@@ -33,26 +35,26 @@ Installs nginx as docker systemd service.
 
 ### Main config
 
-| Variable      | Type | Mandatory? | Default | Description           |
-|---------------|------|------------|---------|-----------------------|
-| nginx_image_name    | text | no         | nginx   | Docker image name     |
-| nginx_image_version | text | no         | 1.17.9-alpine | Docker image version |
-| nginx_https_port    | port as number | no | 443         | Your webserver's https listening port |
-| nginx_http_port     | port as number | no | 80          | Your webserver's http listening port |
-| nginx_volume        | path as text   | yes | <empty>    | The location your server will store its files |
-| nginx_conf_folder   | path as text   | no | {{nginx_volume}}/conf.d |  |
-| nginx_rules_folder  | path as text   | no | {{nginx_volume}}/rules  |  |
-| nginx_certs_folder  | path as text   | no | {{nginx_volume}}/certs  |  |
-| nginx_ssl_folder    | path as text   | no | {{nginx_volume}}/ssl    |  |
-| nginx_www_folder    | path as text   | no | {{nginx_volume}}/www    |  |
-| nginx_log_folder    | path as text   | no | /var/log/nginx    |  |
-| nginx_script_folder                 | path as text | no | /opt/nginx                   |  |
-| nginx_clear_dh_parameter            | boolean      | no | false                        |  |
-| nginx_dh_parameter_bits             | integer number | no | 4096                       |  |
-| nginx_ticketkey_enabled             | boolean        | no | no                         | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
-| nginx_config                        | `nginx_config` object | no | <empty object>      | Specifies the main nginx.conf |
-| nginx_configs                       | dictionary of `nginx_config` objects | no | <empty object>   | Defines all config files in `conf.d` directory |
-| nginx_rules                         | dictionary of `nginx_config` objects | no | <empty object>   | Defines all rule files in `rules` directory |
+| Variable                 | Type                                 | Mandatory? | Default                 | Description                                                                                                    |
+|--------------------------|--------------------------------------|------------|-------------------------|----------------------------------------------------------------------------------------------------------------|
+| nginx_image_name         | text                                 | no         | nginx                   | Docker image name                                                                                              |
+| nginx_image_version      | text                                 | no         | 1.17.9-alpine           | Docker image version                                                                                           |
+| nginx_https_port         | port as number                       | no         | 443                     | Your webserver's https listening port                                                                          |
+| nginx_http_port          | port as number                       | no         | 80                      | Your webserver's http listening port                                                                           |
+| nginx_volume             | path as text                         | yes        | <empty>                 | The location your server will store its files                                                                  |
+| nginx_conf_folder        | path as text                         | no         | {{nginx_volume}}/conf.d |                                                                                                                |
+| nginx_rules_folder       | path as text                         | no         | {{nginx_volume}}/rules  |                                                                                                                |
+| nginx_certs_folder       | path as text                         | no         | {{nginx_volume}}/certs  |                                                                                                                |
+| nginx_ssl_folder         | path as text                         | no         | {{nginx_volume}}/ssl    |                                                                                                                |
+| nginx_www_folder         | path as text                         | no         | {{nginx_volume}}/www    |                                                                                                                |
+| nginx_log_folder         | path as text                         | no         | /var/log/nginx          |                                                                                                                |
+| nginx_script_folder      | path as text                         | no         | /opt/nginx              |                                                                                                                |
+| nginx_clear_dh_parameter | boolean                              | no         | false                   |                                                                                                                |
+| nginx_dh_parameter_bits  | integer number                       | no         | 4096                    |                                                                                                                |
+| nginx_ticketkey_enabled  | boolean                              | no         | no                      | Defines if the ssl_session_ticket_key is persisted on filesystem and not managed by this nginx instance itself |
+| nginx_config             | `nginx_config` object                | no         | <empty object>          | Specifies the main nginx.conf                                                                                  |
+| nginx_configs            | dictionary of `nginx_config` objects | no         | <empty object>          | Defines all config files in `conf.d` directory                                                                 |
+| nginx_rules              | dictionary of `nginx_config` objects | no         | <empty object>          | Defines all rule files in `rules` directory                                                                    |
 
 ### Definition of `nginx_config`
 

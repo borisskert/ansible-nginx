@@ -10,25 +10,31 @@
       docker_install_pip_package: true
 
     - role: create-self-signed-certs
-      ca_name: "{{ nginx_ca_name }}"
-      working_directory: /srv/openssl
-      certificates_directory: /srv/nginx/certs/live
-      sites:
+      openssl_ca_name: "{{ nginx_ca_name }}"
+      openssl_working_directory: /srv/openssl
+      openssl_certificates_directory: /srv/nginx/certs/live
+      openssl_sites:
         - my.https.server
 
   post_tasks:
     - name: Perform prepare
       include_tasks: ../shared/prepare.yml
 
-    - name: should pull apache's docker image
+    - name: Pull apache's docker image
       docker_image:
         name: httpd:2.4.43
         source: pull
 
-    - name: should run another webserver via docker
+    - name: Start another webserver via docker (to test reverse-proxy)
       docker_container:
         name: my_another_webserver
         image: httpd:2.4.43
         state: started
         ports:
           - "10080:80"
+
+    - name: Install netcat on Debian-based systems (to test open ports)
+      package:
+          name: netcat-traditional
+          state: present
+      when: ansible_os_family == 'Debian'
