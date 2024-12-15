@@ -14,7 +14,7 @@ driver:
   name: docker
 
 platforms:
-  - name: docker-noble
+  - name: ansible-nginx-noble
     image: docker.io/borisskert/python3:noble
     pull: true
     pre_build_image: true
@@ -22,7 +22,7 @@ platforms:
       - '/var/run/docker.sock:/var/run/docker.sock'
     groups:
       - docker
-  - name: docker-jammy
+  - name: ansible-nginx-jammy
     image: docker.io/borisskert/python3:jammy
     pull: true
     pre_build_image: true
@@ -30,7 +30,7 @@ platforms:
       - '/var/run/docker.sock:/var/run/docker.sock'
     groups:
       - docker
-  - name: docker-focal
+  - name: ansible-nginx-focal
     image: docker.io/borisskert/python3:focal
     pull: true
     pre_build_image: true
@@ -39,7 +39,7 @@ platforms:
     groups:
       - docker
 
-  - name: docker-bookworm
+  - name: ansible-nginx-bookworm
     image: docker.io/borisskert/python3:bookworm
     pull: true
     pre_build_image: true
@@ -49,7 +49,7 @@ platforms:
       - docker
       - debian
 
-  - name: docker-bullseye
+  - name: ansible-nginx-bullseye
     image: docker.io/borisskert/python3:bullseye
     pull: true
     pre_build_image: true
@@ -69,17 +69,6 @@ provisioner:
         molecule_docker_environment: true
       debian:
         ansible_python_interpreter: /usr/bin/python3
-    host_vars:
-      ansible-nginx-noble:
-        nginx_ca_name: ansible-nginx-noble
-      ansible-nginx-jammy:
-        nginx_ca_name: ansible-nginx-jammy
-      ansible-nginx-focal:
-        nginx_ca_name: ansible-nginx-focal
-      ansible-nginx-bookworm:
-        nginx_ca_name: ansible-nginx-bookworm
-      ansible-nginx-bullseye:
-        nginx_ca_name: ansible-nginx-bullseye
 
 verifier:
   name: ansible

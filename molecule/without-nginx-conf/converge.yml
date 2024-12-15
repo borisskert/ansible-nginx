@@ -52,7 +52,7 @@
               server_name: my.http.server
               location /:
                 proxy_pass: http://apache/
-                include_tasks: ./rules/proxy.conf
+                include: ./rules/proxy.conf
               location ~ /.well-known:
                 root: /var/www/html
                 allow: all
@@ -63,10 +63,10 @@
               ssl_certificate: certs/live/my.https.server/fullchain.pem
               ssl_certificate_key: certs/live/my.https.server/privkey.pem
               ssl_trusted_certificate: certs/live/my.https.server/chain.pem
-              include_tasks: ./rules/ssl.conf
+              include: ./rules/ssl.conf
               location /:
                 proxy_pass: http://apache
-                include_tasks: ./rules/proxy.conf
+                include: ./rules/proxy.conf
               location ~ /.well-known:
                 root: /var/www/html
                 allow: all
@@ -84,13 +84,13 @@
               ssl_certificate: certs/live/my.https.server/fullchain.pem
               ssl_certificate_key: certs/live/my.https.server/privkey.pem
               ssl_trusted_certificate: certs/live/my.https.server/chain.pem
-              include_tasks: ./rules/ssl.conf
+              include: ./rules/ssl.conf
               location /:
                 proxy_pass: http://apache/
-                include_tasks: ./rules/proxy.conf
+                include: ./rules/proxy.conf
               location /video/:
                 proxy_pass: http://apache/
-                include_tasks: ./rules/proxy.conf
+                include: ./rules/proxy.conf
                 mp4:
                 mp4_buffer_size: 1m
                 mp4_max_buffer_size: 5m
