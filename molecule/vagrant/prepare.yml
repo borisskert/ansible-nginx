@@ -35,6 +35,6 @@
 
     - name: Install netcat on Debian-based systems (to test open ports)
       package:
-          name: netcat-traditional
-          state: present
+        name: netcat-traditional
+        state: present
       when: ansible_os_family == 'Debian'
