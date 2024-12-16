@@ -14,16 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: "${{ github.repository }}"
 
       - name: lint and test (scenario 'default') with molecule
-        uses: borisskert/molecule-action@v20.07.21
+        uses: borisskert/molecule-action@v24.12.9
         with:
           arguments: test
 
       - name: lint and test (scenario 'without-nginx-conf') with molecule
-        uses: borisskert/molecule-action@v20.07.21
+        uses: borisskert/molecule-action@v24.12.9
         with:
           arguments: test -s without-nginx-conf

@@ -1,5 +1,5 @@
 ---
-- include: check-parameters.yml
+- include_tasks: check-parameters.yml
 
 - name: Create systemd unit file
   template:
@@ -12,19 +12,13 @@
     - Enable nginx service
     - Restart nginx service
 
-- name: pull image
-  docker_image:
-    name: "{{ nginx_image_name }}:{{ nginx_image_version }}"
-    source: pull
-  notify: Restart nginx service
+- include_tasks: create_volumes.yml
 
-- include: create_volumes.yml
+- include_tasks: create-rules.yml
 
-- include: create-rules.yml
+- include_tasks: create_dh_parameter.yml
 
-- include: create_dh_parameter.yml
-
-- name: template nginx config
+- name: Template nginx config
   template:
     src: nginx.conf.j2
     dest: "{{ nginx_volume }}/nginx.conf"
@@ -33,14 +27,14 @@
     config_dict: "{{ nginx_config }}"
   when: nginx_config is defined
 
-- name: template nginx config
+- name: Template nginx config
   file:
     path: "{{ nginx_volume }}/nginx.conf"
     state: absent
   when: nginx_config is not defined
 
-- name: template site configs
-  include: setup-site-configs.yml
+- name: Template site configs
+  include_tasks: setup-site-configs.yml
 
 - name: Create reloader service
   template:
@@ -56,7 +50,7 @@
     src: logrotate.j2
     dest: "{{ nginx_logrotate_config }}"
 
-- include: setup-ticketkey.yml
+- include_tasks: setup-ticketkey.yml
 
 - name: Start/Restart systemd services
   meta: flush_handlers

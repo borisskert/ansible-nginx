@@ -1,23 +1,23 @@
 ---
-- name: search for existing site config files
+- name: Search for existing site config files
   find:
     paths: "{{ nginx_conf_folder }}"
     patterns: '*.conf'
   register: existing_files
 
-- name: determine intended site config files
+- name: Determine intended site config files
   set_fact:
     intended_file_paths: >
       {{
       lookup('dict', nginx_configs)
       | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', '{{ nginx_conf_folder }}/\1.conf')
+      | map('regex_replace', '^(.*)$', nginx_conf_folder + '/\1.conf')
       | list
-      + ['{{ nginx_conf_folder }}/upstreams.conf']
+      + [nginx_conf_folder + '/nginx.conf']
       }}
 
-- name: determine site config files to be removed
+- name: Determine site config files to be removed
   set_fact:
     files_to_remove_paths: >
       {{
@@ -36,5 +36,7 @@
   notify: Reload nginx
 
 - name: template site config
-  include: setup-site-config.yml
-  with_dict: "{{ nginx_configs }}"
+  include_tasks: setup-site-config.yml
+  loop: "{{ nginx_configs | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

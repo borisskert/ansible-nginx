@@ -1,22 +1,22 @@
 ---
-- name: search for existing rule config files
+- name: Search for existing rule config files
   find:
     paths: "{{ nginx_rules_folder }}"
     patterns: '*.conf'
   register: existing_files
 
-- name: determine intended site config files
+- name: Determine intended rule config files
   set_fact:
     intended_file_paths: >
       {{
       lookup('dict', nginx_rules)
       | selectattr('key', 'defined')
       | map(attribute='key')
-      | map('regex_replace', '^(.*)$', '{{ nginx_rules_folder }}/\1.conf')
+      | map('regex_replace', '^(.*)$', nginx_rules_folder + '/\1.conf')
       | list
       }}
 
-- name: determine site config files to be removed
+- name: Determine rule config files to be removed
   set_fact:
     files_to_remove_paths: >
       {{
@@ -27,13 +27,15 @@
       | list
       }}
 
-- name: Remove unneeded site configs
+- name: Remove unneeded rule configs
   file:
     path: "{{ item }}"
     state: absent
   loop: "{{ files_to_remove_paths }}"
   notify: Reload nginx
 
-- name: template rules config
-  include: create-rule.yml
-  with_dict: "{{ nginx_rules }}"
+- name: Template rules config
+  include_tasks: create-rule.yml
+  loop: "{{ nginx_rules | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
